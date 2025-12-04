@@ -251,22 +251,35 @@ const onFileChange = (event) => {
   }
 };
 
-// ✅ Función para filtrar municipios por provincia
+// ✅ FUNCIÓN CORREGIDA para ModeLos
 const filtrarMunicipios = () => {
-  const nombreProv = vehiculo.value.ubicacion.provincia;
-  const prov = provincias.value.find(p => p.nm === nombreProv);
+  console.log('🔍 Filtrando municipios para:', vehiculo.value.ubicacion.provincia);
 
-  if (!prov) {
+  if (!vehiculo.value.ubicacion.provincia) {
+    municipiosFiltrados.value = [];
+    vehiculo.value.ubicacion.ciudad = "";
+    return;
+  }
+
+  // Buscar provincia seleccionada
+  const provinciaSeleccionada = provincias.value.find(p => p.nm === vehiculo.value.ubicacion.provincia);
+
+  if (!provinciaSeleccionada) {
+    console.warn('⚠️ Provincia no encontrada:', vehiculo.value.ubicacion.provincia);
     municipiosFiltrados.value = [];
     return;
   }
 
-  const codigoProv = prov.id.slice(0, 2);
-  municipiosFiltrados.value = municipios.value.filter(
-    m => m.id.startsWith(codigoProv)
+  // Filtrar municipios por código de provincia
+  const codigoProvincia = provinciaSeleccionada.id;
+  municipiosFiltrados.value = municipios.value.filter(m =>
+    m.id.startsWith(codigoProvincia)
   );
 
-  vehiculo.value.ubicacion.ciudad = '';
+  console.log(`🏙️ Encontrados ${municipiosFiltrados.value.length} municipios para código ${codigoProvincia}`);
+
+  // Reset ciudad
+  vehiculo.value.ubicacion.ciudad = "";
 };
 
 // ✅ Función para guardar vehículo

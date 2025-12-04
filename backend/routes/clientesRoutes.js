@@ -3,17 +3,18 @@ const router = express.Router();
 const fs = require("fs").promises;
 const path = require("path");
 
-// Cambiar la ruta para usar db.json en lugar de clientes.json
 const dbFile = path.join(__dirname, "../data/db.json");
 
 // GET - Obtener todos los clientes
 router.get("/", async (req, res) => {
     try {
+        console.log("👥 GET /api/clientes - Obteniendo clientes...");
+
         const { historico } = req.query;
 
-        // Leer archivo JSON completo
         const data = await fs.readFile(dbFile, "utf8");
         const db = JSON.parse(data);
+
         let clientes = db.clientes || [];
 
         // Filtrar por histórico si se especifica
@@ -25,11 +26,14 @@ router.get("/", async (req, res) => {
         }
 
         // Ordenar por apellidos
-        clientes.sort((a, b) => a.apellidos.localeCompare(b.apellidos));
+        clientes.sort((a, b) =>
+            (a.apellidos || "").localeCompare(b.apellidos || "")
+        );
 
+        console.log(`👥 Encontrados ${clientes.length} clientes`);
         res.json(clientes);
     } catch (error) {
-        console.error("Error al obtener clientes:", error);
+        console.error("❌ Error al obtener clientes:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -38,13 +42,14 @@ router.get("/", async (req, res) => {
 router.get("/dni/:dni", async (req, res) => {
     try {
         const { dni } = req.params;
+        console.log(`👥 GET /api/clientes/dni/${dni}`);
 
         const data = await fs.readFile(dbFile, "utf8");
         const db = JSON.parse(data);
-        const clientes = db.clientes || [];
 
+        const clientes = db.clientes || [];
         const cliente = clientes.find(
-            (c) => c.dni.toUpperCase() === dni.toUpperCase()
+            (c) => c.dni && c.dni.toUpperCase() === dni.toUpperCase()
         );
 
         if (!cliente) {
@@ -53,7 +58,7 @@ router.get("/dni/:dni", async (req, res) => {
 
         res.json(cliente);
     } catch (error) {
-        console.error("Error al buscar cliente por DNI:", error);
+        console.error("❌ Error al buscar cliente por DNI:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -61,9 +66,11 @@ router.get("/dni/:dni", async (req, res) => {
 // POST - Crear nuevo cliente
 router.post("/", async (req, res) => {
     try {
+        console.log("👥 POST /api/clientes - Creando cliente:", req.body);
+
         const nuevoCliente = {
             ...req.body,
-            id: Date.now().toString(36) + Math.random().toString(36).substr(2), // ID único
+            id: Math.random().toString(36).substring(2, 6),
             fecha_alta:
                 req.body.fecha_alta || new Date().toISOString().split("T")[0],
         };
@@ -78,10 +85,11 @@ router.post("/", async (req, res) => {
         db.clientes.push(nuevoCliente);
 
         await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cliente creado:", nuevoCliente.id);
 
         res.status(201).json(nuevoCliente);
     } catch (error) {
-        console.error("Error al crear cliente:", error);
+        console.error("❌ Error al crear cliente:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -90,25 +98,29 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`👥 PUT /api/clientes/${id}`);
 
         const data = await fs.readFile(dbFile, "utf8");
         const db = JSON.parse(data);
-        let clientes = db.clientes || [];
 
-        const index = clientes.findIndex((c) => c.id === id);
+        if (!db.clientes) {
+            return res.status(404).json({ error: "No hay clientes" });
+        }
+
+        const index = db.clientes.findIndex((c) => c.id === id);
 
         if (index === -1) {
             return res.status(404).json({ error: "Cliente no encontrado" });
         }
 
-        clientes[index] = { ...clientes[index], ...req.body };
-        db.clientes = clientes;
+        db.clientes[index] = { ...db.clientes[index], ...req.body };
 
         await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cliente actualizado:", id);
 
-        res.json(clientes[index]);
+        res.json(db.clientes[index]);
     } catch (error) {
-        console.error("Error al actualizar cliente:", error);
+        console.error("❌ Error al actualizar cliente:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -117,26 +129,30 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`👥 DELETE /api/clientes/${id}`);
 
         const data = await fs.readFile(dbFile, "utf8");
         const db = JSON.parse(data);
-        let clientes = db.clientes || [];
 
-        const index = clientes.findIndex((c) => c.id === id);
+        if (!db.clientes) {
+            return res.status(404).json({ error: "No hay clientes" });
+        }
+
+        const index = db.clientes.findIndex((c) => c.id === id);
 
         if (index === -1) {
             return res.status(404).json({ error: "Cliente no encontrado" });
         }
 
         // Soft delete - marcar como histórico false
-        clientes[index].historico = false;
-        db.clientes = clientes;
+        db.clientes[index].historico = false;
 
         await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cliente eliminado (soft delete):", id);
 
         res.json({ message: "Cliente eliminado correctamente" });
     } catch (error) {
-        console.error("Error al eliminar cliente:", error);
+        console.error("❌ Error al eliminar cliente:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });

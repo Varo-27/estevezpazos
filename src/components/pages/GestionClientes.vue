@@ -313,14 +313,38 @@ const totalPages = computed(() => {
     return Math.ceil(clientes.value.length / clientesPorPage);
 });
 
-// ✅ Función para filtrar municipios por provincia
+// ✅ FUNCIÓN CORREGIDA para filtrar municipios por código de provincia
 const filtrarMunicipios = () => {
-    if (nuevoCliente.value.provincia && municipios.value[nuevoCliente.value.provincia]) {
-        municipiosFiltrados.value = municipios.value[nuevoCliente.value.provincia];
-    } else {
+    console.log('🔍 Provincia seleccionada:', nuevoCliente.value.provincia);
+
+    if (!nuevoCliente.value.provincia) {
         municipiosFiltrados.value = [];
+        nuevoCliente.value.municipio = "";
+        return;
     }
-    nuevoCliente.value.municipio = ""; // Reset municipio when province changes
+
+    // Buscar la provincia seleccionada para obtener su ID/código
+    const provinciaSeleccionada = provincias.value.find(p => p.nm === nuevoCliente.value.provincia);
+
+    if (!provinciaSeleccionada) {
+        console.warn('⚠️ Provincia no encontrada:', nuevoCliente.value.provincia);
+        municipiosFiltrados.value = [];
+        return;
+    }
+
+    // Obtener código de provincia (ej: "01", "15", "46")
+    const codigoProvincia = provinciaSeleccionada.id;
+
+    // Filtrar municipios que empiecen con ese código
+    // Ej: si provincia es "01" (Álava), buscar municipios "01001", "01002", etc.
+    municipiosFiltrados.value = municipios.value.filter(m =>
+        m.id.startsWith(codigoProvincia)
+    );
+
+    console.log(`🏙️ Encontrados ${municipiosFiltrados.value.length} municipios para ${nuevoCliente.value.provincia} (código: ${codigoProvincia})`);
+
+    // Reset municipio seleccionado
+    nuevoCliente.value.municipio = "";
 };
 
 // Resto de tus funciones actuales...

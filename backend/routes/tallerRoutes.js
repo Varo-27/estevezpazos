@@ -3,13 +3,17 @@ const router = express.Router();
 const fs = require("fs").promises;
 const path = require("path");
 
-const citasFile = path.join(__dirname, "../data/citas.json");
+const dbFile = path.join(__dirname, "../data/db.json");
 
 // GET - Obtener todas las citas
 router.get("/", async (req, res) => {
     try {
-        const data = await fs.readFile(citasFile, "utf8");
-        const citas = JSON.parse(data);
+        console.log("🔧 GET /api/taller - Obteniendo citas...");
+
+        const data = await fs.readFile(dbFile, "utf8");
+        const db = JSON.parse(data);
+
+        const citas = db.taller || [];
 
         // Ordenar por fecha y hora
         citas.sort((a, b) => {
@@ -18,9 +22,10 @@ router.get("/", async (req, res) => {
             return fechaA - fechaB;
         });
 
+        console.log(`🔧 Encontradas ${citas.length} citas`);
         res.json(citas);
     } catch (error) {
-        console.error("Error al obtener citas:", error);
+        console.error("❌ Error al obtener citas:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -28,22 +33,29 @@ router.get("/", async (req, res) => {
 // POST - Crear nueva cita
 router.post("/", async (req, res) => {
     try {
+        console.log("🔧 POST /api/taller - Creando cita:", req.body);
+
         const nuevaCita = {
-            id: Date.now().toString(),
+            id: Math.random().toString(36).substring(2, 6),
             ...req.body,
             estado: req.body.estado || "pendiente",
         };
 
-        const data = await fs.readFile(citasFile, "utf8");
-        const citas = JSON.parse(data);
+        const data = await fs.readFile(dbFile, "utf8");
+        const db = JSON.parse(data);
 
-        citas.push(nuevaCita);
+        if (!db.taller) {
+            db.taller = [];
+        }
 
-        await fs.writeFile(citasFile, JSON.stringify(citas, null, 2));
+        db.taller.push(nuevaCita);
+
+        await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cita creada:", nuevaCita.id);
 
         res.status(201).json(nuevaCita);
     } catch (error) {
-        console.error("Error al crear cita:", error);
+        console.error("❌ Error al crear cita:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -52,22 +64,28 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`🔧 PUT /api/taller/${id}`);
 
-        const data = await fs.readFile(citasFile, "utf8");
-        let citas = JSON.parse(data);
+        const data = await fs.readFile(dbFile, "utf8");
+        const db = JSON.parse(data);
 
-        const index = citas.findIndex((c) => c.id === id);
+        if (!db.taller) {
+            return res.status(404).json({ error: "No hay citas" });
+        }
+
+        const index = db.taller.findIndex((c) => c.id === id);
         if (index === -1) {
             return res.status(404).json({ error: "Cita no encontrada" });
         }
 
-        citas[index] = { ...citas[index], ...req.body };
+        db.taller[index] = { ...db.taller[index], ...req.body };
 
-        await fs.writeFile(citasFile, JSON.stringify(citas, null, 2));
+        await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cita actualizada:", id);
 
-        res.json(citas[index]);
+        res.json(db.taller[index]);
     } catch (error) {
-        console.error("Error al actualizar cita:", error);
+        console.error("❌ Error al actualizar cita:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
@@ -76,22 +94,28 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`🔧 DELETE /api/taller/${id}`);
 
-        const data = await fs.readFile(citasFile, "utf8");
-        let citas = JSON.parse(data);
+        const data = await fs.readFile(dbFile, "utf8");
+        const db = JSON.parse(data);
 
-        const index = citas.findIndex((c) => c.id === id);
+        if (!db.taller) {
+            return res.status(404).json({ error: "No hay citas" });
+        }
+
+        const index = db.taller.findIndex((c) => c.id === id);
         if (index === -1) {
             return res.status(404).json({ error: "Cita no encontrada" });
         }
 
-        citas.splice(index, 1);
+        db.taller.splice(index, 1);
 
-        await fs.writeFile(citasFile, JSON.stringify(citas, null, 2));
+        await fs.writeFile(dbFile, JSON.stringify(db, null, 2));
+        console.log("✅ Cita eliminada:", id);
 
         res.json({ message: "Cita eliminada correctamente" });
     } catch (error) {
-        console.error("Error al eliminar cita:", error);
+        console.error("❌ Error al eliminar cita:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });

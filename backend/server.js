@@ -29,20 +29,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// Rutas
+// ✅ IMPORTAR TODAS LAS RUTAS
 const authRoutes = require("./routes/authRoutes");
 const articulosRoutes = require("./routes/articulosRoutes");
 const clientesRoutes = require("./routes/clientesRoutes");
 const noticiasRoutes = require("./routes/noticiasRoutes");
 const tallerRoutes = require("./routes/tallerRoutes");
 
+// ✅ USAR TODAS LAS RUTAS
 app.use("/api/auth", authRoutes);
 app.use("/api/articulos", articulosRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/noticias", noticiasRoutes);
 app.use("/api/taller", tallerRoutes);
 
-// Endpoint para provincias
+// ✅ ENDPOINTS PARA DATOS ESTÁTICOS
 app.get("/api/provmuni", (req, res) => {
     try {
         const provmuniData = require("./data/provmuni.json");
@@ -53,7 +54,6 @@ app.get("/api/provmuni", (req, res) => {
     }
 });
 
-// Endpoint para coches
 app.get("/api/coches", (req, res) => {
     try {
         const cochesData = require("./data/coches.json");
@@ -67,16 +67,21 @@ app.get("/api/coches", (req, res) => {
 // Ruta base
 app.get("/", (req, res) => {
     res.json({
-        message: "Servidor funcionando correctamente",
+        message: "✅ Servidor funcionando correctamente",
         timestamp: new Date().toISOString(),
         routes: [
-            "/api/auth",
-            "/api/articulos",
-            "/api/clientes",
-            "/api/noticias",
-            "/api/taller",
-            "/api/provmuni",
-            "/api/coches",
+            "GET  /api/auth/login",
+            "GET  /api/auth/verify",
+            "GET  /api/articulos",
+            "POST /api/articulos",
+            "GET  /api/clientes",
+            "POST /api/clientes",
+            "GET  /api/noticias",
+            "POST /api/noticias",
+            "GET  /api/taller",
+            "POST /api/taller",
+            "GET  /api/provmuni",
+            "GET  /api/coches",
         ],
     });
 });
@@ -89,10 +94,14 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-    console.log(`📁 Rutas disponibles:`);
-    console.log(`   GET  /api/noticias`);
-    console.log(`   POST /api/noticias`);
-    console.log(`   DELETE /api/noticias/:id`);
+    console.log(`📁 Rutas API disponibles:`);
+    console.log(`   🔐 /api/auth/login`);
+    console.log(`   🚗 /api/articulos`);
+    console.log(`   👥 /api/clientes`);
+    console.log(`   📰 /api/noticias`);
+    console.log(`   🔧 /api/taller`);
+    console.log(`   🌍 /api/provmuni`);
+    console.log(`   🚙 /api/coches`);
 });
 
 module.exports = app;
