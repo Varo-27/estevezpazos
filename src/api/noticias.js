@@ -1,19 +1,21 @@
-import axios from "axios";
+import { api } from "./index.js";
 
-const API_URL = 'http://localhost:3000/noticias';
+export const getNoticias = async () => {
+    const response = await api.get("/noticias");
+    return response.data;
+};
 
-export const getNoticias = () => {
-    return axios.get(API_URL).then(res => res.data);
-}
+export const addNoticia = async (noticia) => {
+    const response = await api.post("/noticias", noticia);
+    return response.data;
+};
 
-export const addNoticia = (nuevaNoticia) => {
-    return axios.post(API_URL, nuevaNoticia).then(res => res.data);
-}
+export const editNoticia = async (id, noticia) => {
+    const response = await api.put(`/noticias/${id}`, noticia);
+    return response.data;
+};
 
-export const editNoticia = (id, noticiaActualizada) => {
-    return axios.put(`${API_URL}/${id}`, noticiaActualizada).then(res => res.data);
-}
-
-export const deleteNoticia = (id) => {
-    return axios.delete(`${API_URL}/${id}`).then(res => res.data);
-}
+export const deleteNoticia = async (id) => {
+    const response = await api.delete(`/noticias/${id}`);
+    return response.data;
+};

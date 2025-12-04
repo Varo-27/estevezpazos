@@ -1,26 +1,21 @@
-import axios from "axios"
+import { api } from "./index.js";
 
-const API_URL = "http://localhost:3000/taller"
+export const getCitasTaller = async () => {
+    const response = await api.get("/taller");
+    return response.data;
+};
 
-// Obtener todas las citas
-export async function getCitasTaller() {
-  const res = await axios.get(API_URL)
-  return res.data
-}
+export const addCitaTaller = async (cita) => {
+    const response = await api.post("/taller", cita);
+    return response.data;
+};
 
-// Añadir cita
-export async function addCitaTaller(cita) {
-  const res = await axios.post(API_URL, cita)
-  return res.data
-}
+export const updateCitaTaller = async (id, cita) => {
+    const response = await api.put(`/taller/${id}`, cita);
+    return response.data;
+};
 
-// Actualizar cita
-export async function updateCitaTaller(id, cita) {
-  const res = await axios.put(`${API_URL}/${id}`, cita)
-  return res.data
-}
-
-// Eliminar cita
-export async function deleteCitaTaller(id) {
-  await axios.delete(`${API_URL}/${id}`)
-}
+export const deleteCitaTaller = async (id) => {
+    const response = await api.delete(`/taller/${id}`);
+    return response.data;
+};

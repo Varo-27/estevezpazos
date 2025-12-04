@@ -1,37 +1,21 @@
-import axios from "axios";
+import { api } from "./index.js";
 
-const API_URL = "http://localhost:5000/api/articulos";
+export const getArticulos = async () => {
+    const response = await api.get("/articulos");
+    return response.data;
+};
 
-// Obtener todos los artículos
-export async function getArticulos() {
-  const res = await axios.get(API_URL);
-  return res.data;
-}
+export const addArticulo = async (articulo) => {
+    const response = await api.post("/articulos", articulo);
+    return response.data;
+};
 
-// Obtener artículo por ID
-export async function getArticuloById(id) {
-  const res = await axios.get(`${API_URL}/${id}`);
-  return res.data;
-}
+export const updateArticulo = async (id, articulo) => {
+    const response = await api.put(`/articulos/${id}`, articulo);
+    return response.data;
+};
 
-// Crear artículo
-export async function addArticulo(formData) {
-  const res = await axios.post(API_URL, formData);
-  return res.data;
-}
-
-// Actualizar artículo
-export async function updateArticulo(id, articulo) {
-  const res = await axios.put(`${API_URL}/${id}`, articulo,{
-    headers:{
-      "Content-Type": "multipart/form-data"
-    }
-  }
-  );
-  return res.data;
-}
-
-// Eliminar artículo
-export async function deleteArticulo(id) {
-  await axios.delete(`${API_URL}/${id}`);
-}
+export const deleteArticulo = async (id) => {
+    const response = await api.delete(`/articulos/${id}`);
+    return response.data;
+};

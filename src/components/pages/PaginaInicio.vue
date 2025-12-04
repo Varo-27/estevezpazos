@@ -1,22 +1,12 @@
 <template>
     <div
-        class="d-flex flex-column justify-content-center align-items-center h-100 position-relative bg-secondary bg-opacity-25"
-    >
-        <video
-            autoplay
-            muted
-            loop
-            class="position-fixed top-0 start-0 w-100 h-100"
-            style="object-fit: cover; z-index: -1"
-        >
-            <source src="../assets/background.mp4" type="video/mp4" />
+        class="d-flex flex-column justify-content-center align-items-center h-100 position-relative bg-secondary bg-opacity-25">
+        <video autoplay muted loop class="position-fixed top-0 start-0 w-100 h-100"
+            style="object-fit: cover; z-index: -1">
+            <source src="@/assets/background.mp4" type="video/mp4" />
         </video>
 
-        <div
-            v-if="mostrarBienvenida"
-            class="texto-bienvenida"
-            :class="{ 'fade-out': desvaneciendo }"
-        >
+        <div v-if="mostrarBienvenida" class="texto-bienvenida" :class="{ 'fade-out': desvaneciendo }">
             <h1 class="display-1 fw-bold text-white text-shadow">Bienvenido a CarTeis</h1>
         </div>
     </div>
@@ -29,12 +19,10 @@ const mostrarBienvenida = ref(true);
 const desvaneciendo = ref(false);
 
 onMounted(() => {
-    // Iniciar desvanecimiento a los 8 segundos
     setTimeout(() => {
         desvaneciendo.value = true;
     }, 8000);
 
-    // Ocultar completamente a los 10 segundos
     setTimeout(() => {
         mostrarBienvenida.value = false;
     }, 10000);

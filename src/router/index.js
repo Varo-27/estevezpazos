@@ -1,13 +1,20 @@
-import NotFound from "../components/NotFound.vue";
-import PaginaInicio from "../components/PaginaInicio.vue";
-import GestionClientes from "../components/GestionClientes.vue";
-import NoTicias from "../components/NoTicias.vue";
-import AvisoLegal from "../components/AvisoLegal.vue";
-import PoliticaPrivacidad from "../components/PoliticaPrivacidad.vue";
-import ModeLos from "../components/ModeLos.vue";
-import CitasTaller from "../components/CitasTaller.vue";
-import TablaLogin from "../components/TablaLogin.vue";
 import { createRouter, createWebHistory } from "vue-router";
+
+// Componentes comunes
+import NotFound from "@/components/common/NotFound.vue";
+
+// Componentes de páginas
+import PaginaInicio from "@/components/pages/PaginaInicio.vue";
+import GestionClientes from "@/components/pages/GestionClientes.vue";
+import NoTicias from "@/components/pages/NoTicias.vue";
+import AvisoLegal from "@/components/pages/AvisoLegal.vue";
+import PoliticaPrivacidad from "@/components/pages/PoliticaPrivacidad.vue";
+import ModeLos from "@/components/pages/ModeLos.vue";
+import CitasTaller from "@/components/pages/CitasTaller.vue";
+import Ventas from "@/components/pages/Ventas.vue";
+
+// Componentes de autenticación
+import TablaLogin from "@/components/auth/TablaLogin.vue";
 
 const routes = [
     {
@@ -34,6 +41,11 @@ const routes = [
         path: "/taller",
         name: "CitasTaller",
         component: CitasTaller,
+    },
+    {
+        path: "/ventas",
+        name: "Ventas",
+        component: Ventas,
     },
     {
         path: "/aviso-legal",

@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid my-3 p-2 border rounded-0 shadow-sm bg-light">
-    <h5 class="text-center bg-primary-subtle  ms-1 py-1"><i class="bi bi-car-front me-2"></i>Registro de Vehículos </h5>
+    <h5 class="text-center bg-primary-subtle ms-1 py-1"><i class="bi bi-car-front me-2"></i>Registro de Vehículos </h5>
     <form @submit.prevent="guardarVehiculo" class="mb-2 mt-1 ms-1">
       <!-- FILA: Tipo, Marca, Modelo -->
       <div class="row g-3 align-items-center mt-1">
@@ -56,8 +56,6 @@
 
       <!-- FILA: Año, Kilómetros, Precio -->
       <div class="row g-3 align-items-center mt-2">
-
-
         <div class="col-12 col-md-2 d-flex align-items-center">
           <label for="kilometros" class="form-label mb-0 me-2 text-nowrap">Kilómetros:</label>
           <input type="text" id="kilometros" v-model="vehiculo.kilometros"
@@ -112,6 +110,7 @@
             placeholder="Describe el estado, potencia, color, revisiones, etc."></textarea>
         </div>
       </div>
+
       <!-- FILA: Imagen del vehículo -->
       <div class="row g-3 align-items-center mb-3">
         <div class="col-12 col-md-3 d-flex align-items-center">
@@ -122,6 +121,7 @@
       </div>
 
       <h5 class="text-center bg-primary-subtle py-1"><i class="bi bi-person me-2"></i>Cliente Ubicación</h5>
+
       <!-- FILA: Ubicación -->
       <div class="row g-3 align-items-center mt-3">
         <div class="col-12 col-md-3 d-flex align-items-center">
@@ -129,7 +129,6 @@
           <select id="provincia" @change="filtrarMunicipios" v-model="vehiculo.ubicacion.provincia"
             class="form-select rounded-0 shadow-none border">
             <option disabled value="">Seleccione provincia</option>
-            >
             <option v-for="prov in provincias" :key="prov.id" :value="prov.nm">{{ prov.nm }}</option>
           </select>
         </div>
@@ -164,41 +163,45 @@
         <div class="col-12 col-md-4 d-flex ms-4 align-items-center">
           <label for="contacto.email" class="form-label mb-0 me-2 text-nowrap">Email:</label>
           <input type="email" id="contacto.email" @blur="validarEmail()" v-model="vehiculo.contacto.email"
-            class="form-control rounded-0 shadow-none border"></input>
+            class="form-control rounded-0 shadow-none border">
         </div>
       </div>
 
       <!-- FILA: Estado y botón -->
       <div class="row g-3 align-items-center mt-3">
         <div class="col-12 d-flex justify-content-center align-items-center">
-          <button type="submit" class="btn btn-primary rounded-0 border shadow-none px-4 py-2 ">
+          <button type="submit" class="btn btn-primary rounded-0 border shadow-none px-4 py-2">
             {{ editando ? 'Modificar' : 'Guardar' }}
           </button>
-          <button type="submit" class="btn btn-primary rounded-0 border shadow-none px-4 py-2 ms-2 ">
+          <button type="button" class="btn btn-danger rounded-0 border shadow-none px-4 py-2 ms-2">
             Eliminar
           </button>
         </div>
       </div>
-
     </form>
   </div>
 </template>
 
-
 <script setup>
-/// Importar datos de provincias y municipios
-import provmuniData from '@/data/provmuni.json';
 import Swal from "sweetalert2"
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { addArticulo } from "@/api/articulos.js"
+import { api } from '@/api/index.js'
 
+// ✅ Variables de datos - UNA SOLA DECLARACIÓN
+const provincias = ref([]);
+const municipios = ref([]);
+const municipiosFiltrados = ref([]);
+const coches = ref([]);
+
+// ✅ Variables del formulario
 const vehiculo = ref({
   tipo: "",
   matricula: "",
   marca: "",
   modelo: "",
   anio: "",
-  estado: "",
+  estado: "disponible",
   kilometros: "",
   precio: "",
   combustible: "",
@@ -214,28 +217,63 @@ const vehiculo = ref({
     telefono: "",
     email: ""
   },
-  fecha_publicacion: "",
-  estado: "disponible"
-})
+  fecha_publicacion: ""
+});
 
+// ✅ Variables de estado
 const editando = ref(false);
+const archivo = ref(null);
+const emailValido = ref(true);
+const movilValido = ref(true);
 
-const archivo = ref(null)
+// ✅ UNA SOLA función onMounted
+onMounted(async () => {
+  try {
+    // Cargar provincias desde API
+    const provmuniResponse = await api.get('/provmuni');
+    provincias.value = provmuniResponse.data.provincias || [];
+    municipios.value = provmuniResponse.data.municipios || {};
 
-const onFileChange = (e) => {
-  archivo.value = e.target.files[0]
-}
+    // Cargar coches desde API
+    const cochesResponse = await api.get('/coches');
+    coches.value = cochesResponse.data || [];
+  } catch (error) {
+    console.error('Error al cargar datos:', error);
+    Swal.fire('Error', 'No se pudieron cargar los datos necesarios', 'error');
+  }
+});
 
-//const tiposVehiculo = ref(["coche", "moto", "furgoneta", "camión"])
-//const tiposCombustible = ref(["gasolina", "diésel", "híbrido", "eléctrico"])
+// ✅ Función para manejar cambio de archivo
+const onFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    archivo.value = file;
+  }
+};
 
+// ✅ Función para filtrar municipios por provincia
+const filtrarMunicipios = () => {
+  const nombreProv = vehiculo.value.ubicacion.provincia;
+  const prov = provincias.value.find(p => p.nm === nombreProv);
 
-// Enviar datos al backend
+  if (!prov) {
+    municipiosFiltrados.value = [];
+    return;
+  }
+
+  const codigoProv = prov.id.slice(0, 2);
+  municipiosFiltrados.value = municipios.value.filter(
+    m => m.id.startsWith(codigoProv)
+  );
+
+  vehiculo.value.ubicacion.ciudad = '';
+};
+
+// ✅ Función para guardar vehículo
 const guardarVehiculo = async () => {
   try {
     const formData = new FormData();
 
-    // Solo añadir imagen si hay archivo seleccionado
     if (archivo.value) {
       formData.append("imagen", archivo.value);
     }
@@ -252,51 +290,47 @@ const guardarVehiculo = async () => {
         timer: 2000,
         showConfirmButton: false
       });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error al guardar el vehículo",
-        text: "Faltan datos? Por favor, inténtalo de nuevo.",
-        timer: 2000,
-        showConfirmButton: false
+
+      // Limpiar formulario
+      Object.assign(vehiculo.value, {
+        tipo: "",
+        matricula: "",
+        marca: "",
+        modelo: "",
+        anio: "",
+        estado: "disponible",
+        kilometros: "",
+        precio: "",
+        combustible: "",
+        transmision: "",
+        potencia_cv: "",
+        descripcion: "",
+        ubicacion: { provincia: "", ciudad: "" },
+        contacto: { nombre: "", telefono: "", email: "" },
+        fecha_publicacion: ""
       });
+      archivo.value = null;
+    } else {
+      throw new Error('No se recibió respuesta válida del servidor');
     }
-
-    // Limpiar formulario
-    Object.assign(vehiculo.value, {
-      tipo: "",
-      matricula: "",
-      marca: "",
-      modelo: "",
-      anio: "",
-      estado: "disponible",
-      kilometros: "",
-      precio: "",
-      combustible: "",
-      transmision: "",
-      potencia_cv: "",
-      descripcion: "",
-      ubicacion: { provincia: "", ciudad: "" },
-      contacto: { nombre: "", telefono: "", email: "" },
-      fecha_publicacion: ""
-    });
-    archivo.value = null;
-
   } catch (error) {
     console.error("Error al guardar:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al guardar el vehículo",
+      text: "Por favor, inténtalo de nuevo.",
+      timer: 2000,
+      showConfirmButton: false
+    });
   }
 };
 
-
-
-///// FUNCIONES AUXILIARES /////
-// Función única: capitaliza y asigna en el mismo paso
+// ✅ Funciones auxiliares
 const todoTexto = (campo) => {
   const texto = vehiculo.value[campo] ?? '';
   vehiculo.value[campo] = texto.toUpperCase();
 };
 
-// Función única: capitaliza y asigna en el mismo paso
 const capitalizarTexto = (campo) => {
   const texto = vehiculo.value[campo] ?? '';
   vehiculo.value[campo] = texto
@@ -309,17 +343,25 @@ const capitalizarTexto = (campo) => {
     .join(' ');
 };
 
-const emailValido = ref(true);
+const capitalizarNombreContacto = () => {
+  const nombre = vehiculo.value.contacto.nombre ?? '';
+  vehiculo.value.contacto.nombre = nombre
+    .toLowerCase()
+    .split(' ')
+    .map(palabra => palabra ? palabra.charAt(0).toUpperCase() + palabra.slice(1) : '')
+    .join(' ');
+};
+
 const validarEmail = () => {
   const email = vehiculo.value.contacto.email || '';
   if (email === '') {
-    emailValido.value = true; // Vacío = válido (opcional)
+    emailValido.value = true;
     return true;
   }
 
-  // Expresión simple para email válido
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   emailValido.value = regex.test(email);
+
   if (!emailValido.value) {
     Swal.fire({
       icon: 'error',
@@ -332,16 +374,14 @@ const validarEmail = () => {
   return emailValido.value;
 };
 
-// Control móvil
-const movilValido = ref(true);
-const movilRegex = /^[67]\d{8}$/;
-
 const validarMovil = () => {
-  const movil = vehiculo.value.contacto.telefono?.trim() || ''; // usa la referencia correcta del input
+  const movil = vehiculo.value.contacto.telefono?.trim() || '';
   if (movil === '') {
-    movilValido.value = true; // Vacío = válido (opcional)
+    movilValido.value = true;
     return true;
   }
+
+  const movilRegex = /^[67]\d{8}$/;
 
   if (movil.charAt(0) === '6' || movil.charAt(0) === '7') {
     movilValido.value = movilRegex.test(movil);
@@ -369,50 +409,11 @@ const validarMovil = () => {
     return false;
   }
 };
-// Provincias y municipios
-
-const provincias = ref(provmuniData.provincias); // Array de provincias
-const municipios = ref(provmuniData.municipios); // Array de municipios para filtrarlos
-const municipiosFiltrados = ref([]);  // vacío pero contendrá los municipios filtrados
-
-const filtrarMunicipios = () => {
-  // nombre de la provincia elegida en el <select>
-  const nombreProv = vehiculo.value.ubicacion.provincia;
-
-  //  buscar en provincias el objeto con ese nombre
-  const prov = provincias.value.find(p => p.nm === nombreProv);
-  if (!prov) {
-    municipiosFiltrados.value = [];
-    return;
-  }
-
-  //  los dos primeros dígitos del id de la provincia
-  const codigoProv = prov.id.slice(0, 2);
-
-  // filtrar los municipios cuyo id empiece por esos dos dígitos
-  municipiosFiltrados.value = municipios.value.filter(
-    m => m.id.startsWith(codigoProv)
-  );
-
-  //  opcional: resetear el municipio si ya no corresponde
-  nuevoCliente.value.municipio = '';
-};
-
-const capitalizarNombreContacto = () => {
-  const nombre = vehiculo.value.contacto.nombre ?? '';
-  vehiculo.value.contacto.nombre = nombre
-    .toLowerCase()
-    .split(' ')
-    .map(palabra => palabra ? palabra.charAt(0).toUpperCase() + palabra.slice(1) : '')
-    .join(' ');
-};
-
 </script>
 
 <style>
 .btn-file-azul::file-selector-button {
   background-color: #0d6efd;
-  /* azul primary */
   color: white;
   border: none;
   padding: 6px 12px;

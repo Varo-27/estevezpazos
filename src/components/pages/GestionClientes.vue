@@ -240,27 +240,36 @@
 </template>
 
 <script setup>
-import provmuniData from '@/data/provmuni.json';
 import { ref, onMounted, computed } from 'vue'
 import { getClientes, addCliente, deleteCliente, updateCliente, getClientePorDni } from '@/api/clientes.js'
+import { api } from '@/api/index.js'
 import Swal from 'sweetalert2';
 import bcrypt from "bcryptjs";
+import { useAuth } from '@/composables/useAuth.js'
+
+const { isAdmin } = useAuth()
+const admin = computed(() => isAdmin.value)
+
+// Variables para provincias (ahora se cargan desde API)
+const provincias = ref([]);
+const municipios = ref([]);
+const municipiosFiltrados = ref([]);
 
 const nuevoCliente = ref({
-    dni: '',
-    nombre: '',
-    apellidos: '',
-    email: '',
-    movil: '',
-    direccion: '',
-    provincia: '',
-    municipio: '',
-    fecha_alta: '',
+    dni: "",
+    nombre: "",
+    apellidos: "",
+    email: "",
+    movil: "",
+    direccion: "",
+    provincia: "",
+    municipio: "",
+    fecha_alta: "",
     historico: true,
     lopd: false,
-    tipoCliente: "",
+    tipoCliente: "user",
     password: "",
-    password2: "",
+    password2: ""
 });
 
 // Variables reactivas
@@ -277,13 +286,19 @@ const dniValido = ref(true);
 const movilValido = ref(true);
 const emailValido = ref(true);
 
-// Provincias y municipios
-const provincias = ref(provmuniData.provincias);
-const municipios = ref(provmuniData.municipios);
-const municipiosFiltrados = ref([]);
-
 onMounted(async () => {
-    cargarClientes();
+    // ✅ Cargar provincias desde API
+    try {
+        const response = await api.get('/provmuni');
+        provincias.value = response.data.provincias || [];
+        municipios.value = response.data.municipios || {};
+    } catch (error) {
+        console.error('Error al cargar provincias:', error);
+        Swal.fire('Error', 'No se pudieron cargar las provincias', 'error');
+    }
+
+    // Cargar clientes
+    await cargarClientes();
     currentPage.value = 1;
 });
 
@@ -298,41 +313,23 @@ const totalPages = computed(() => {
     return Math.ceil(clientes.value.length / clientesPorPage);
 });
 
-// Métodos de paginación
-const beforePagina = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
+// ✅ Función para filtrar municipios por provincia
+const filtrarMunicipios = () => {
+    if (nuevoCliente.value.provincia && municipios.value[nuevoCliente.value.provincia]) {
+        municipiosFiltrados.value = municipios.value[nuevoCliente.value.provincia];
+    } else {
+        municipiosFiltrados.value = [];
     }
+    nuevoCliente.value.municipio = ""; // Reset municipio when province changes
 };
 
-const nextPagina = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-
+// Resto de tus funciones actuales...
 const cargarClientes = async () => {
     try {
-        const data = await getClientes(mostrarHistorico.value);
-        clientes.value = data;
-        currentPage.value = 1;
-
-        Swal.fire({
-            icon: 'success',
-            title: "Listando Clientes...",
-            showConfirmButton: false,
-            timer: 1500
-        });
-
+        clientes.value = await getClientes();
     } catch (error) {
-        console.error('Error al cargar los clientes:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error al cargar los clientes',
-            text: 'Inténtelo de nuevo o contacte con el administrador.',
-            showConfirmButton: false,
-            timer: 2000
-        });
+        console.error("Error al cargar los clientes:", error);
+        Swal.fire("Error", "No se pudieron cargar los clientes", "error");
     }
 };
 
@@ -568,6 +565,7 @@ const buscarClientePorDNI = async (dni) => {
             return;
         }
 
+        // Cargar datos del cliente encontrado
         nuevoCliente.value = { ...cliente };
         nuevoCliente.value.fecha_alta = formatearFechaParaInput(cliente.fecha_alta);
         nuevoCliente.value.lopd = cliente.lopd;
@@ -661,23 +659,6 @@ const validarEmail = () => {
     }
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     emailValido.value = regex.test(email);
-};
-
-const filtrarMunicipios = () => {
-    const nombreProv = nuevoCliente.value.provincia;
-    const prov = provincias.value.find(p => p.nm === nombreProv);
-
-    if (!prov) {
-        municipiosFiltrados.value = [];
-        return;
-    }
-
-    const codigoProv = prov.id.slice(0, 2);
-    municipiosFiltrados.value = municipios.value.filter(
-        m => m.id.startsWith(codigoProv)
-    );
-
-    nuevoCliente.value.municipio = '';
 };
 
 function formatearFechaParaInput(fecha) {

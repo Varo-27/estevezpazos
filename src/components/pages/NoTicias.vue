@@ -22,26 +22,19 @@
                     <small class="text-muted">{{ noticia.fecha }}</small>
                 </div>
             </div>
-            
+
             <!-- Contenido -->
             <div class="p-3 bg-info-subtle">
                 <p class="mb-2">
                     {{ isExpanded[noticia.id] ? noticia.contenido : noticia.contenido.slice(0, 150) + "..." }}
                 </p>
-                
+
                 <div class="d-flex justify-content-between align-items-center">
-                    <a 
-                        href="#" 
-                        @click.prevent="toggleExpand(noticia.id)" 
-                        class="text-decoration-none"
-                    >
+                    <a href="#" @click.prevent="toggleExpand(noticia.id)" class="text-decoration-none">
                         {{ isExpanded[noticia.id] ? "Mostrar menos..." : "Seguir leyendo..." }}
                     </a>
-                    
-                    <button 
-                        class="btn btn-outline-secondary btn-sm" 
-                        @click.prevent="eliminarNoticia(noticia.id)"
-                    >
+
+                    <button class="btn btn-outline-secondary btn-sm" @click.prevent="eliminarNoticia(noticia.id)">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -52,7 +45,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import { getNoticias, addNoticia, deleteNoticia, editNoticia } from "../api/noticias";
+// ✅ CORREGIDO: Usar alias @/ en lugar de ../
+import { getNoticias, addNoticia, deleteNoticia, editNoticia } from "@/api/noticias.js";
 
 const noticias = ref([]);
 const isExpanded = reactive({});
@@ -108,32 +102,6 @@ const agregarNoticia = async () => {
     }
 };
 
-const editarNoticia = async (id) => {
-    const noticia = noticias.value.find((n) => n.id === id);
-    if (!noticia) {
-        if (!noticia) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Noticia no encontrada',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            return;
-        }
-    }
-
-    nuevaNoticia.value = { ...noticia };
-    editando.value = true;
-
-    
-    const noticiaEditada = {
-        id: id,
-        titulo: nuevoTitulo.value,
-        contenido: nuevoContenido.value,
-        fecha: nuevaFecha.value,
-    };
-}
-
 const eliminarNoticia = async (id) => {
     try {
         await deleteNoticia(id);
@@ -164,7 +132,4 @@ const generarId = () => {
 .bg-info-subtle {
     background-color: #f3faff !important;
 }
-
-
-
 </style>

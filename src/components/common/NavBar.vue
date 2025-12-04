@@ -41,11 +41,18 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <!-- Mostra “Acceso/Registro” se NON hai usuario logueado -->
-          <li v-if="!isLogueado"><router-link class="dropdown-item" to="/login">Acceso</router-link></li>
-          <li v-if="!isLogueado"><router-link class="dropdown-item" to="/clientes">Registro</router-link></li>
+          <li v-if="!isLogueado">
+            <router-link class="dropdown-item" to="/login">Acceso</router-link>
+          </li>
+          <li v-if="!isLogueado">
+            <router-link class="dropdown-item" to="/clientes">Registro</router-link>
+          </li>
           <!-- Mostra “Cerrar Sesión” se está logueado -->
           <li v-if="isLogueado">
-            <a class="dropdown-item" href="#" @click.prevent="logout">Cerrar Sesión</a>
+            <span class="dropdown-item">Hola {{ userName }}</span>
+          </li>
+          <li v-if="isLogueado">
+            <a class="dropdown-item" href="#" @click.prevent="cerrarSesion">Cerrar Sesión</a>
           </li>
         </ul>
       </div>
@@ -54,61 +61,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { esAdmin } from '@/api/authApi.js'  // importamos la función que ya tenemos
+import { onMounted } from 'vue'
+import { useAuth } from '@/composables/useAuth.js'
 
-const isLogueado = ref(false)
-const isAdmin = ref(false)
-const isUsuario = ref(false)
-const userName = ref('')
+const { isLogueado, userName, initAuth, logout } = useAuth()
 
-// Se ejecuta al montar el componente
-onMounted(async () => {
-  const token = sessionStorage.getItem('token')
-  if (!token) {
-    isLogueado.value = false
-    isAdmin.value = false
-    isUsuario.value = false
-    userName.value = ''
-    return
-  }
-
-  try {
-    // Decidir si es admin usando la función del frontend
-    isAdmin.value = await esAdmin()
-    isUsuario.value = !isAdmin.value
-    isLogueado.value = true
-    userName.value = sessionStorage.getItem('userName') || ''
-  } catch (err) {
-    console.error('Error verificando si es admin', err)
-    sessionStorage.clear()
-    isLogueado.value = false
-    isAdmin.value = false
-    isUsuario.value = false
-    userName.value = ''
-  }
+onMounted(() => {
+  initAuth()
 })
 
-// Logout
-function logout() {
-  sessionStorage.clear()
-  isLogueado.value = false
-  isAdmin.value = false
-  isUsuario.value = false
-  userName.value = ''
-  window.location.href = '/'
+const cerrarSesion = async () => {
+  logout()
+  setTimeout(() => {
+    window.location.href = '/'
+  }, 1500)
 }
 </script>
 
 <style>
 .navbar-dark .nav-link {
   color: rgba(255, 255, 255, 0.9);
-  /* blanco suave */
 }
 
 .navbar-dark .nav-link:hover,
 .navbar-dark .nav-link:focus {
   color: #fff;
-  /* blanco intenso al pasar el ratón */
 }
 </style>
