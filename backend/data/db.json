@@ -300,7 +300,7 @@
       "municipio": "Sumacàrcer",
       "historico": true,
       "lopd": true,
-      "password": "$2b$10$0fT1S3IPKpgqVMA1RnfD3.hMdlsyfLuKaHL3tEJ1p8B5IRCulWpka",
+      "password": "$2b$10$Jd88/MMvnSaYpAw1wFRuYufNYipDeSxZOOlzmWU.j/TAGr0JFIEPa",
       "tipoCliente": "admin",
       "id": "bacd"
     },
@@ -467,6 +467,18 @@
   ],
   "noticias": [
     {
+      "id": "8pur",
+      "titulo": "loco",
+      "contenido": "locoooooo",
+      "fecha": "2025-12-05"
+    },
+    {
+      "id": "cgz4",
+      "titulo": "hola",
+      "contenido": "prueba",
+      "fecha": "2025-12-05"
+    },
+    {
       "id": "4af8",
       "titulo": "Toyota presenta un nuevo motor",
       "contenido": "Toyota presenta su nuevo eléctrico bZ4X, un SUV compacto con autonomía de hasta 450 km y tecnología avanzada de asistencia al conductor. Este modelo marca el inicio de la nueva familia bZ (beyond Zero) de Toyota, enfocada en cero emisiones. El bZ4X cuenta con tracción total opcional, carga rápida y un diseño futurista que combina eficiencia y confort. Llegará a concesionarios en 2025, posicionándose como una opción competitiva en el mercado EV global.",
@@ -533,6 +545,20 @@
       "servicioTaller": "Frenos",
       "estadoCita": "Finalizado",
       "acepta": true
+    }
+  ],
+  "articulos": [
+    {
+      "id": "1764925412708",
+      "imagen": {},
+      "vehiculo": "{\"tipo\":\"coche\",\"matricula\":\"1234\",\"marca\":\"1231\",\"modelo\":\"121\",\"anio\":\"213\",\"estado\":\"vendido\",\"kilometros\":\"321\",\"precio\":\"21321\",\"combustible\":\"Diésel\",\"transmision\":\"manual\",\"potencia_cv\":\"213\",\"descripcion\":\"qssqs\",\"ubicacion\":{\"provincia\":\"Albacete\",\"ciudad\":\"Barrax\"},\"contacto\":{\"nombre\":\"Asdasd\",\"telefono\":\"652652321\",\"email\":\"asdasd@asd.es\"},\"fecha_publicacion\":\"2025-12-10\"}",
+      "fecha_creacion": "2025-12-05T09:03:32.708Z"
+    },
+    {
+      "id": "1764925414309",
+      "imagen": {},
+      "vehiculo": "{\"tipo\":\"coche\",\"matricula\":\"1234\",\"marca\":\"1231\",\"modelo\":\"121\",\"anio\":\"213\",\"estado\":\"vendido\",\"kilometros\":\"321\",\"precio\":\"21321\",\"combustible\":\"Diésel\",\"transmision\":\"manual\",\"potencia_cv\":\"213\",\"descripcion\":\"qssqs\",\"ubicacion\":{\"provincia\":\"Albacete\",\"ciudad\":\"Barrax\"},\"contacto\":{\"nombre\":\"Asdasd\",\"telefono\":\"652652321\",\"email\":\"asdasd@asd.es\"},\"fecha_publicacion\":\"2025-12-10\"}",
+      "fecha_creacion": "2025-12-05T09:03:34.309Z"
     }
   ]
 }

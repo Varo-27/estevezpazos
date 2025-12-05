@@ -45,7 +45,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-// ✅ CORREGIDO: Usar alias @/ en lugar de ../
 import { getNoticias, addNoticia, deleteNoticia, editNoticia } from "@/api/noticias.js";
 
 const noticias = ref([]);
@@ -76,7 +75,6 @@ const agregarNoticia = async () => {
     }
 
     const nuevaNoticia = {
-        id: generarId(),
         titulo: nuevoTitulo.value,
         contenido: nuevoContenido.value,
         fecha: new Date()
@@ -91,8 +89,12 @@ const agregarNoticia = async () => {
     };
 
     try {
-        await addNoticia(nuevaNoticia);
-        noticias.value.unshift(nuevaNoticia); // Añade al principio
+        // ✅ El backend devuelve la noticia con el ID generado
+        const noticiaCreada = await addNoticia(nuevaNoticia);
+
+        // ✅ Usar la noticia que devuelve el backend (con ID)
+        noticias.value.unshift(noticiaCreada);
+
         // Limpiar el formulario
         nuevoTitulo.value = "";
         nuevoContenido.value = "";
@@ -118,9 +120,6 @@ const toggleExpand = (id) => {
     isExpanded[id] = !isExpanded[id];
 };
 
-const generarId = () => {
-    return Math.random().toString(36).substring(2, 6);
-};
 </script>
 
 <style scoped>
