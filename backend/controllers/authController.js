@@ -3,14 +3,12 @@ const bcrypt = require("bcryptjs");
 const fs = require("fs").promises;
 const path = require("path");
 
-const JWT_SECRET = "tu_secreto_super_seguro_aqui";
+const JWT_SECRET = process.env.JWT_SECRET
 const dbFile = path.join(__dirname, "../data/db.json");
 
 const login = async (req, res) => {
     try {
         const { dni, password } = req.body;
-
-        console.log("🔐 Intento de login:", dni);
 
         // Leer usuarios desde db.json
         const data = await fs.readFile(dbFile, "utf8");

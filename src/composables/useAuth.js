@@ -13,10 +13,11 @@ export function useAuth() {
     const initAuth = () => {
         const token = sessionStorage.getItem("token");
         const userName = sessionStorage.getItem("userName");
+        const userType = sessionStorage.getItem("userType"); // ✅ AÑADIR ESTO
 
         if (token && userName) {
             isLogueado.value = true;
-            user.value = { nombre: userName };
+            user.value = { nombre: userName, tipo: userType }; // ✅ AÑADIR TIPO
         }
     };
 
@@ -31,6 +32,7 @@ export function useAuth() {
             // Guardar en sessionStorage
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("userName", data.nombre);
+            sessionStorage.setItem("userType", data.tipo || "user"); // ✅ AÑADIR ESTO
 
             Swal.fire({
                 title: "Bienvenido",
