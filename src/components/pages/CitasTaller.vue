@@ -81,8 +81,7 @@
             <!-- Condiciones -->
             <div class="col-12 text-center">
                 <div class="form-check d-inline-block">
-                    <input id="condiciones" type="checkbox" v-model="nuevaCita.acepta" class="form-check-input"
-                        required />
+                    <input id="condiciones" type="checkbox" v-model="nuevaCita.acepta" class="form-check-input"/>
                     <label class="form-check-label" for="condiciones">
                         Acepta el presupuesto
                     </label>
@@ -151,6 +150,8 @@
 //Scripts CRUD
 import { ref, onMounted, computed } from "vue";
 import { getCitasTaller, deleteCitaTaller, addCitaTaller, updateCitaTaller } from "@/api/taller.js";
+import { useNotifications } from '@/composables/useNotifications';
+const {success, error, warning, confirm} = useNotifications()
 import Swal from "sweetalert2";
 
 const nuevaCita = ref({
@@ -179,12 +180,7 @@ const cargarCitas = () => {
         citas.value = data;
         numCitas.value = data.length;
     });
-    Swal.fire({
-        icon: "success",
-        title: "Listando Citas...",
-        showConfirmButton: false,
-        timer: 1500,
-    });
+    success('Listando Citas')
 };
 
 // Funcion Eliminar Cita with patch (histórico a false)
@@ -195,12 +191,7 @@ const eliminarCita = async (movilcliente) => {
     const citaAEliminar = citas.value.find((cita) => cita.movilcliente === movilcliente);
 
     if (!citaAEliminar) {
-        Swal.fire({
-            icon: "error",
-            title: "Cita no encontrada",
-            showConfirmButton: false,
-            timer: 1500,
-        });
+        error("Cita no encontrada")
         return;
     }
 
@@ -221,22 +212,12 @@ const eliminarCita = async (movilcliente) => {
     // Refrescar la lista desde la "API"
     citas.value = await getCitasTaller();
 
-    Swal.fire({
-        icon: "success",
-        title: "Cita eliminada",
-        showConfirmButton: false,
-        timer: 1500,
-    });
+    success("Cita eliminada")
 };
 
 const guardarCita = async () => {
     if (!nuevaCita.value.acepta) {
-        Swal.fire({
-            icon: "warning",
-            title: "Debe aceptar los términos y condiciones",
-            text: "Por favor, marque la casilla de Aviso Legal para continuar.",
-            showConfirmButton: true,
-        });
+        warning("Debe aceptar el presupuesto", "Por favor, marque la casilla para continuar.")
         return;
     }
 

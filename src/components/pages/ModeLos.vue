@@ -183,10 +183,12 @@
 </template>
 
 <script setup>
-import Swal from "sweetalert2"
+import { useNotifications } from "@/composables/useNotifications";
 import { ref, computed, onMounted } from "vue"
 import { addArticulo } from "@/api/articulos.js"
 import { api } from '@/api/index.js'
+
+const { success, error} = useNotifications();
 
 // ✅ Variables de datos - UNA SOLA DECLARACIÓN
 const provincias = ref([]);
@@ -239,7 +241,7 @@ onMounted(async () => {
     coches.value = cochesResponse.data || [];
   } catch (error) {
     console.error('Error al cargar datos:', error);
-    Swal.fire('Error', 'No se pudieron cargar los datos necesarios', 'error');
+    error('No se pudieron cargar los datos necesarios');
   }
 });
 
