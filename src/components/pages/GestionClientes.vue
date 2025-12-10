@@ -247,6 +247,10 @@ import Swal from 'sweetalert2';
 import bcrypt from "bcryptjs";
 import { useAuth } from '@/composables/useAuth.js'
 
+import { useNotifications} from '../../composables/useNotifications.js'
+const {success, error, warning} = useNotifications();
+
+
 const { isAdmin } = useAuth()
 const admin = computed(() => isAdmin.value)
 
@@ -294,7 +298,7 @@ onMounted(async () => {
         municipios.value = response.data.municipios || {};
     } catch (error) {
         console.error('Error al cargar provincias:', error);
-        Swal.fire('Error', 'No se pudieron cargar las provincias', 'error');
+        error('Error', 'No se pudieron cargar las provincias');
     }
 
     // Cargar clientes
@@ -353,18 +357,13 @@ const cargarClientes = async () => {
         clientes.value = await getClientes();
     } catch (error) {
         console.error("Error al cargar los clientes:", error);
-        Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+        error("Error", "No se pudieron cargar los clientes");
     }
 };
 
 const guardarCliente = async () => {
     if (!passwordsIguales.value) {
-        Swal.fire({
-            icon: "error",
-            title: "Las contraseñas deben coincidir",
-            showConfirmButton: false,
-            timer: 2000,
-        });
+        error("Las contraseñas deben coincidir");
         return;
     }
 
@@ -383,12 +382,7 @@ const guardarCliente = async () => {
                 cliente.email === nuevoCliente.value.email
         );
         if (duplicado) {
-            Swal.fire({
-                icon: "error",
-                title: "DNI, móvil o email duplicados",
-                showConfirmButton: false,
-                timer: 2000,
-            });
+            error("DNI, móvil o email duplicados");
             return;
         }
     }
@@ -413,23 +407,11 @@ const guardarCliente = async () => {
             const clienteActualizado = await updateCliente(clienteEditandoId.value, nuevoCliente.value);
             const index = clientes.value.findIndex(c => c.id === clienteEditandoId.value);
             if (index !== -1) clientes.value[index] = clienteActualizado;
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Cliente modificado',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            success('Cliente modificado');
         } else {
             const clienteAgregado = await addCliente(nuevoCliente.value);
             clientes.value.push(clienteAgregado);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Cliente agregado',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            success('Cliente agregado');
         }
 
         // Reset formulario
@@ -438,13 +420,7 @@ const guardarCliente = async () => {
 
     } catch (error) {
         console.error('Error al guardar cliente:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error al guardar cliente',
-            text: 'Inténtelo de nuevo o contacte con el administrador.',
-            showConfirmButton: false,
-            timer: 1500
-        });
+        error('Error al guardar cliente', 'Inténtelo de nuevo o contacte con el administrador.');
     }
 };
 
@@ -457,22 +433,12 @@ const eliminarCliente = async (movil) => {
     const clienteAEliminar = clientes.value.find(cliente => cliente.movil === movil);
 
     if (!clienteAEliminar) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Cliente no encontrado',
-            showConfirmButton: false,
-            timer: 1500
-        });
+        error('Cliente no encontrado');
         return;
     }
 
     if (!clienteAEliminar.historico) {
-        Swal.fire({
-            icon: "error",
-            title: "Cliente ya dado de Baja",
-            showConfirmButton: false,
-            timer: 1500,
-        });
+        error("Cliente ya dado de Baja")
         return;
     }
 
@@ -488,24 +454,13 @@ const eliminarCliente = async (movil) => {
 
     await deleteCliente(clienteAEliminar.id);
     clientes.value = await getClientes(mostrarHistorico.value);
-
-    Swal.fire({
-        icon: 'success',
-        title: 'Cliente eliminado',
-        showConfirmButton: false,
-        timer: 1500
-    });
+    success('Cliente eliminado');
 };
 
 const editarCliente = (movil) => {
     const cliente = clientes.value.find((c) => c.movil === movil);
     if (!cliente) {
-        Swal.fire({
-            icon: "error",
-            title: "Cliente no encontrado",
-            showConfirmButton: false,
-            timer: 1500,
-        });
+        error("Cliente no encontrado");
         return;
     }
 
@@ -543,35 +498,19 @@ const activarCliente = async (cliente) => {
         if (index !== -1) {
             clientes.value[index] = actualizado;
         }
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Cliente reactivado',
-            showConfirmButton: false,
-            timer: 1500
-        });
+        success('Cliente reactivado');
 
         await cargarClientes();
 
     } catch (error) {
         console.error('Error al reactivar cliente:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error al activar cliente',
-            text: 'Por favor, intenta de nuevo.',
-            timer: 1500
-        });
+        error('Error al activar cliente', 'Por favor, intenta de nuevo.');
     }
 };
 
 const buscarClientePorDNI = async (dni) => {
     if (!dni || dni.trim() === '') {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Debe introducir un DNI antes de buscar.',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        warning('Debe introducir un DNI antes de buscar.');
         return;
     }
 
@@ -600,21 +539,10 @@ const buscarClientePorDNI = async (dni) => {
         nuevoCliente.value.municipio = cliente.municipio;
         clienteEditandoId.value = cliente.id;
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Cliente encontrado y cargado',
-            timer: 1500,
-            showConfirmButton: false
-        });
+        success('Cliente encontrado y cargado');
     } catch (error) {
         console.error('Error buscando cliente por DNI:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error al buscar cliente',
-            text: 'Verifique la conexión o contacte con el administrador.',
-            timer: 2000,
-            showConfirmButton: false
-        });
+        error('Error al buscar cliente', 'Verifique la conexión o contacte con el administrador.');
     }
 };
 
