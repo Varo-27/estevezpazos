@@ -184,11 +184,11 @@
 
 <script setup>
 import { useNotifications } from "@/composables/useNotifications";
-import { ref, computed, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import { addArticulo } from "@/api/articulos.js"
 import { api } from '@/api/index.js'
 
-const { success, error} = useNotifications();
+const { success, error } = useNotifications();
 
 // ✅ Variables de datos - UNA SOLA DECLARACIÓN
 const provincias = ref([]);
@@ -298,13 +298,7 @@ const guardarVehiculo = async () => {
     const nuevo = await addArticulo(formData);
 
     if (nuevo && nuevo._id) {
-      Swal.fire({
-        icon: "success",
-        title: "Vehículo guardado",
-        text: "El vehículo ha sido guardado correctamente.",
-        timer: 2000,
-        showConfirmButton: false
-      });
+      success("Vehículo guardado", "El vehículo ha sido guardado correctamente.")
 
       // Limpiar formulario
       Object.assign(vehiculo.value, {
@@ -330,13 +324,7 @@ const guardarVehiculo = async () => {
     }
   } catch (error) {
     console.error("Error al guardar:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error al guardar el vehículo",
-      text: "Por favor, inténtalo de nuevo.",
-      timer: 2000,
-      showConfirmButton: false
-    });
+    error("Error al guardar el vehículo", "Por favor, inténtalo de nuevo.")
   }
 };
 
@@ -378,13 +366,7 @@ const validarEmail = () => {
   emailValido.value = regex.test(email);
 
   if (!emailValido.value) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Email inválido',
-      text: 'Por favor, introduce un email válido.',
-      timer: 2000,
-      showConfirmButton: false
-    });
+    error("Email invalido", "Por favor, introduce un email válido")
   }
   return emailValido.value;
 };
@@ -403,24 +385,12 @@ const validarMovil = () => {
     if (movilValido.value) {
       return true;
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Móvil inválido',
-        text: 'El número de móvil debe tener 9 dígitos.',
-        timer: 2000,
-        showConfirmButton: false
-      });
+      error('Móvil inválido', 'El número de móvil debe tener 9 dígitos.')
       return false;
     }
   } else {
     movilValido.value = false;
-    Swal.fire({
-      icon: 'error',
-      title: 'Móvil inválido',
-      text: 'El número de móvil debe comenzar con 6 o 7.',
-      timer: 2000,
-      showConfirmButton: false
-    });
+    error('Móvil inválido', 'El número de móvil debe comenzar con 6 o 7.')
     return false;
   }
 };
