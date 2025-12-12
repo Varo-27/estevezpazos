@@ -1,9 +1,9 @@
-const express = require("express");
-const {
+import express from "express";
+import {
     login,
     verificarToken,
     soloAdmin,
-} = require("../controllers/authController.js");
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -12,4 +12,4 @@ router.post("/login", login);
 router.get("/verify", verificarToken);
 router.get("/admin", soloAdmin);
 
-module.exports = router;
+export default router;

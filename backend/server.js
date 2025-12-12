@@ -1,8 +1,15 @@
-require('dotenv').config();
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+// Configuración para __dirname en ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,11 +39,12 @@ app.use((req, res, next) => {
 });
 
 // ✅ IMPORTAR TODAS LAS RUTAS
-const authRoutes = require("./routes/authRoutes");
-const articulosRoutes = require("./routes/articulosRoutes");
-const clientesRoutes = require("./routes/clientesRoutes");
-const noticiasRoutes = require("./routes/noticiasRoutes");
-const tallerRoutes = require("./routes/tallerRoutes");
+import authRoutes from "./routes/authRoutes.js";
+import articulosRoutes from "./routes/articulosRoutes.js";
+import clientesRoutes from "./routes/clientesRoutes.js";
+import noticiasRoutes from "./routes/noticiasRoutes.js";
+import tallerRoutes from "./routes/tallerRoutes.js";
+import contactoRoutes from "./routes/contactoRoutes.js";
 
 // ✅ USAR TODAS LAS RUTAS
 app.use("/api/auth", authRoutes);
@@ -44,11 +52,14 @@ app.use("/api/articulos", articulosRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/noticias", noticiasRoutes);
 app.use("/api/taller", tallerRoutes);
+app.use("/api/contacto", contactoRoutes);
 
 // ✅ ENDPOINTS PARA DATOS ESTÁTICOS
 app.get("/api/provmuni", (req, res) => {
     try {
-        const provmuniData = require("./data/provmuni.json");
+        const provmuniData = JSON.parse(
+            readFileSync(path.join(__dirname, "data/provmuni.json"), "utf-8")
+        );
         res.json(provmuniData);
     } catch (error) {
         console.error("Error al cargar provmuni:", error);
@@ -58,7 +69,9 @@ app.get("/api/provmuni", (req, res) => {
 
 app.get("/api/coches", (req, res) => {
     try {
-        const cochesData = require("./data/coches.json");
+        const cochesData = JSON.parse(
+            readFileSync(path.join(__dirname, "data/coches.json"), "utf-8")
+        );
         res.json(cochesData);
     } catch (error) {
         console.error("Error al cargar coches:", error);
@@ -84,6 +97,7 @@ app.get("/", (req, res) => {
             "POST /api/taller",
             "GET  /api/provmuni",
             "GET  /api/coches",
+            "POST /api/contacto/enviar",
         ],
     });
 });
@@ -104,6 +118,7 @@ app.listen(PORT, () => {
     console.log(`   🔧 /api/taller`);
     console.log(`   🌍 /api/provmuni`);
     console.log(`   🚙 /api/coches`);
+    console.log(`   📧 /api/contacto/enviar`);
 });
 
-module.exports = app;
+export default app;

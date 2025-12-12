@@ -463,6 +463,22 @@
       "password": "",
       "tipoCliente": "user",
       "id": "479b"
+    },
+    {
+      "dni": "55555555K",
+      "nombre": "Alvaroadmin",
+      "apellidos": "Admin",
+      "email": "asd@agas.es",
+      "movil": "654654789",
+      "direccion": "asd",
+      "provincia": "Pontevedra",
+      "municipio": "Vigo",
+      "fecha_alta": "2025-12-09",
+      "historico": true,
+      "lopd": true,
+      "tipoCliente": "admin",
+      "password": "$2b$10$Dl8TiFCSFIEu6qo9HEPKb.kZkyw3K6pLWR7w.k.agD06xRHqK5Wra",
+      "id": "p8b7"
     }
   ],
   "noticias": [
