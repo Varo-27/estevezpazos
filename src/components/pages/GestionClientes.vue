@@ -243,12 +243,11 @@
 import { ref, onMounted, computed } from 'vue'
 import { getClientes, addCliente, deleteCliente, updateCliente, getClientePorDni } from '@/api/clientes.js'
 import { api } from '@/api/index.js'
-import Swal from 'sweetalert2';
 import bcrypt from "bcryptjs";
 import { useAuth } from '@/composables/useAuth.js'
 
-import { useNotifications} from '../../composables/useNotifications.js'
-const {success, error, warning} = useNotifications();
+import { useNotifications } from '../../composables/useNotifications.js'
+const { success, error, warning, confirmDelete, confirmSave, confirmActivate } = useNotifications();
 
 
 const { isAdmin } = useAuth()
@@ -387,13 +386,7 @@ const guardarCliente = async () => {
         }
     }
 
-    const result = await Swal.fire({
-        title: editando.value ? '¿Desea modificar este cliente?' : '¿Desea grabar este cliente?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: editando.value ? 'Modificar' : 'Grabar',
-        cancelButtonText: 'Cancelar'
-    });
+    const result = await confirmSave(editando.value);
 
     if (!result.isConfirmed) return;
 
@@ -442,13 +435,7 @@ const eliminarCliente = async (movil) => {
         return;
     }
 
-    const result = await Swal.fire({
-        title: `¿Eliminar al cliente ${clienteAEliminar.nombre} ${clienteAEliminar.apellidos}?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    });
+    const result = await confirmDelete(`${clienteAEliminar.nombre} ${clienteAEliminar.apellidos}?`)
 
     if (!result.isConfirmed) return;
 
@@ -480,13 +467,7 @@ const editarCliente = (movil) => {
 };
 
 const activarCliente = async (cliente) => {
-    const confirmacion = await Swal.fire({
-        title: `¿Activar cliente ${cliente.nombre} ${cliente.apellidos}?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Activar',
-        cancelButtonText: 'Cancelar'
-    });
+    const confirmacion = await confirmActivate(`${cliente.nombre} ${cliente.apellidos}`);
 
     if (!confirmacion.isConfirmed) return;
 
@@ -517,18 +498,7 @@ const buscarClientePorDNI = async (dni) => {
     try {
         const cliente = await getClientePorDni(dni.trim().toUpperCase());
 
-        if (!cliente) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Cliente no encontrado',
-                text: 'No existe ningún cliente con ese DNI.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-            return;
-        }
-
-        // Cargar datos del cliente encontrado
+        // Si llega aquí, el cliente SÍ existe
         nuevoCliente.value = { ...cliente };
         nuevoCliente.value.fecha_alta = formatearFechaParaInput(cliente.fecha_alta);
         nuevoCliente.value.lopd = cliente.lopd;
@@ -540,9 +510,17 @@ const buscarClientePorDNI = async (dni) => {
         clienteEditandoId.value = cliente.id;
 
         success('Cliente encontrado y cargado');
-    } catch (error) {
-        console.error('Error buscando cliente por DNI:', error);
-        error('Error al buscar cliente', 'Verifique la conexión o contacte con el administrador.');
+
+    } catch (err) {
+        console.error('Error buscando cliente por DNI:', err);
+
+        // Verificar si es un error 404 (no encontrado)
+        if (err.response && err.response.status === 404) {
+            warning('Cliente no encontrado', 'No existe ningún cliente con ese DNI.');
+        } else {
+            // Otro tipo de error (servidor, red, etc.)
+            error('Error al buscar cliente', 'Verifique la conexión o contacte con el administrador.');
+        }
     }
 };
 

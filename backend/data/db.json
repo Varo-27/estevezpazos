@@ -300,7 +300,7 @@
       "municipio": "Sumacàrcer",
       "historico": true,
       "lopd": true,
-      "password": "$2b$10$Jd88/MMvnSaYpAw1wFRuYufNYipDeSxZOOlzmWU.j/TAGr0JFIEPa",
+      "password": "$2b$10$7PrEHgOsWsLMKW.ywTkmS.SnwP8gwjul6uIz1gz/1eskenLArEX7G",
       "tipoCliente": "admin",
       "id": "bacd"
     },
@@ -426,7 +426,7 @@
       "direccion": "Calle Sol, 25",
       "provincia": "Huelva",
       "municipio": "Cerro de Andévalo, El",
-      "historico": true,
+      "historico": false,
       "lopd": false,
       "password": "",
       "tipoCliente": "user",

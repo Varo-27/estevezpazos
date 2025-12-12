@@ -150,9 +150,8 @@
 import { ref, onMounted, computed } from "vue";
 import { getCitasTaller, deleteCitaTaller, addCitaTaller, updateCitaTaller } from "@/api/taller.js";
 import { useNotifications } from '@/composables/useNotifications.js';
-import Swal from "sweetalert2";
 
-const { success, error, warning } = useNotifications();
+const { success, error, warning, confirmSave, confirmDelete} = useNotifications();
 
 // ✅ Constantes
 const servicios = ["Revisión", "PreITV", "Neumáticos", "Frenos", "Cambio de aceite"];
@@ -229,13 +228,7 @@ const guardarCita = async () => {
     }
 
     // Confirmar acción
-    const result = await Swal.fire({
-        title: editando.value ? "¿Modificar esta cita?" : "¿Guardar esta cita?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: editando.value ? "Modificar" : "Guardar",
-        cancelButtonText: "Cancelar"
-    });
+    const result = await confirmSave(editando.value);
 
     if (!result.isConfirmed) return;
 
@@ -281,13 +274,7 @@ const eliminarCita = async (id) => {
         return;
     }
 
-    const result = await Swal.fire({
-        title: `¿Eliminar la cita de ${cita.matricula}?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar"
-    });
+    const result = await confirmDelete(`${cita.matricula}`);
 
     if (!result.isConfirmed) return;
 
