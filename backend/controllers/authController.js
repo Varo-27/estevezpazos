@@ -87,7 +87,7 @@ export const login = async (req, res) => {
                 dni: usuario.dni,
                 tipo: usuario.tipoCliente || "user",
             },
-            JWT_SECRET, // ✅ Esta variable debe tener valor del .env
+            JWT_SECRET,
             { expiresIn: "24h" }
         );
 
@@ -130,4 +130,28 @@ export const soloAdmin = (req, res) => {
     }
 
     res.json({ message: "Acceso permitido para admin" });
+};
+
+export const verificarAdmin = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        if (!token) {
+            return res.status(401).json({ esAdmin: false });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Leer usuarios desde db.json
+        const data = await fs.readFile(dbFile, "utf8");
+        const db = JSON.parse(data);
+        const usuarios = db.clientes || [];
+
+        const usuario = usuarios.find((u) => u.id === decoded.id);
+
+        res.json({ esAdmin: usuario?.tipoCliente === "admin" });
+    } catch (error) {
+        console.error("Error al verificar admin:", error);
+        res.status(401).json({ esAdmin: false });
+    }
 };

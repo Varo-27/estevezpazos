@@ -17,6 +17,9 @@ import ConTacto from "@/components/pages/ConTacto.vue";
 // Componentes de autenticación
 import TablaLogin from "@/components/auth/TablaLogin.vue";
 
+// API
+import { api } from "@/api";
+
 const routes = [
     {
         path: "/",
@@ -37,11 +40,13 @@ const routes = [
         path: "/modelos",
         name: "ModeLos",
         component: ModeLos,
+        meta: { requiresAdmin: true },
     },
     {
         path: "/taller",
         name: "CitasTaller",
         component: CitasTaller,
+        meta: { requiresAdmin: true },
     },
     {
         path: "/ventas",
@@ -78,6 +83,30 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+    const token = sessionStorage.getItem("token");
+
+    // Si la ruta requiere ser admin
+    if (to.meta.requiresAdmin) {
+        // Si no hay token → al login
+        if (!token) return next({ name: "TablaLogin" });
+
+        try {
+            // Consultar al backend si es admin
+            const response = await api.get("/auth/verificar-admin");
+
+            if (!response.data.esAdmin) {
+                return next({ name: "Inicio" });
+            }
+        } catch (error) {
+            console.error("Error al verificar admin:", error);
+            return next({ name: "TablaLogin" });
+        }
+    }
+
+    next();
 });
 
 export default router;
