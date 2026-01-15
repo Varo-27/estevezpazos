@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// ✅ Usar la URL base correcta para desarrollo
 export const api = axios.create({
     baseURL: "http://localhost:5000/api",
     timeout: 10000,

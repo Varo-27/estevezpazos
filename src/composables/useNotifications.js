@@ -85,7 +85,6 @@ export function useNotifications() {
         error,
         warning,
         info,
-        confirm,
         confirmDelete,
         confirmSave,
         confirmActivate,

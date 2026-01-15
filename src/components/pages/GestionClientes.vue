@@ -11,11 +11,11 @@
                         <div class="input-group">
                             <input id="dni" type="text" v-model="nuevoCliente.dni" @blur="validarDni"
                                 :class="['form-control', { 'is-invalid': !dniValido }]" class="pe-0" required />
-                            <button type="button" class="btn btn-outline-primary"
+                            <button v-if="isAdmin" type="button" class="btn btn-outline-primary"
                                 @click="buscarClientePorDNI(nuevoCliente.dni)" title="Buscar">
                                 <i class="bi bi-search"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" @click="recargaForm"
+                            <button v-if="isAdmin" type="button" class="btn btn-outline-secondary" @click="recargaForm"
                                 title="Limpiar">
                                 <i class="bi bi-arrow-clockwise"></i>
                             </button>
@@ -139,23 +139,29 @@
                 </div>
             </div>
 
-            <!-- Bloque Contraseña y Repetir Contraseña con labels a la izquierda -->
+            <!-- Bloque Contraseña y Repetir Contraseña -->
             <div class="row g-3 justify-content-center mt-2">
                 <div class="col-md-3 d-flex align-items-center">
-                    <label for="contrasena"
-                        class="form-label mb-0 fw-medium text-nowrap me-2 align-middle">Contraseña:</label>
+                    <label for="contrasena" class="form-label mb-0 fw-medium text-nowrap me-2 align-middle">
+                        Contraseña{{ editando ? ' (opcional)' : '' }}:
+                    </label>
                     <input type="password" name="contrasena" id="contrasena" class="form-control"
-                        v-model="nuevoCliente.password" required />
+                        v-model="nuevoCliente.password" :required="!editando" />
                 </div>
 
                 <div class="col-md-3 d-flex align-items-center ms-5">
-                    <label for="repeat-contrasena"
-                        class="form-label mb-0 fw-medium text-nowrap me-2 align-middle">Repetir
-                        Contraseña:</label>
+                    <label for="repeat-contrasena" class="form-label mb-0 fw-medium text-nowrap me-2 align-middle">
+                        Repetir Contraseña{{ editando ? ' (opcional)' : '' }}:
+                    </label>
                     <input type="password" name="repeat-contrasena" id="repeat-contrasena" class="form-control"
-                        @blur="validarPasswords" :class="{ 'is-invalid': !passwordsIguales }"
-                        v-model="nuevoCliente.password2" required />
+                        @blur="validarPasswords"
+                        :class="{ 'is-invalid': !passwordsIguales && nuevoCliente.password !== '' }"
+                        v-model="nuevoCliente.password2" :required="!editando" />
                 </div>
+
+                <small v-if="editando" class="text-muted text-center w-100">
+                    Deja los campos vacíos para mantener la contraseña actual
+                </small>
             </div>
 
 
@@ -189,7 +195,7 @@
         </form>
 
         <!-- Lista de Clientes -->
-        <div v-if="admin" class="table-responsive mt-4">
+        <div v-if="isAdmin" class="table-responsive mt-4">
             <h4 class="text-center mb-3">Listado Clientes</h4>
             <table class="table table-bordered table-striped">
                 <thead class="table-primary">
@@ -204,21 +210,22 @@
                 </thead>
                 <tbody>
                     <tr v-for="(cliente, index) in clientesPaginados" :key="cliente.id || index">
-                        <th scope="row" class="text-center">{{ (currentPage - 1) * clientesPorPage + index + 1 }}</th>
+                        <th scope="row" class="text-center">{{ (currentPage - 1) * itemsPorPage + index + 1 }}</th>
                         <td>{{ cliente.apellidos }}</td>
                         <td>{{ cliente.nombre }}</td>
                         <td class="text-center">{{ cliente.movil }}</td>
                         <td class="text-center">{{ cliente.municipio }}</td>
                         <td class="text-center align-middle">
-                            <button @click="eliminarCliente(cliente.movil)" class="btn btn-danger btn-sm me-1">
+                            <button v-if="cliente.historico === true" @click="eliminarCliente(cliente.movil)"
+                                class="btn btn-danger btn-sm me-1">
                                 <i class="bi bi-trash"></i>
+                            </button>
+                            <button v-if="cliente.historico === false" @click="activarCliente(cliente)"
+                                class="btn btn-secondary  btn-sm me-1">
+                                <i class="bi bi-person-check"></i>
                             </button>
                             <button @click="editarCliente(cliente.movil)" class="btn btn-warning btn-sm me-1">
                                 <i class="bi bi-pencil"></i>
-                            </button>
-                            <button v-if="cliente.historico === false" @click="activarCliente(cliente)"
-                                class="btn btn-secondary btn-sm">
-                                <i class="bi bi-person-check"></i>
                             </button>
                         </td>
                     </tr>
@@ -231,8 +238,9 @@
             <button class="btn btn-outline-primary btn-sm me-2" @click="beforePagina" :disabled="currentPage <= 1">
                 <i class="bi bi-chevron-left"></i>
             </button>
-            <span class="mx-3 align-self-center text-muted">Página {{ currentPage }}</span>
-            <button class="btn btn-outline-primary btn-sm" @click="nextPagina" :disabled="currentPage >= totalPages">
+            <span class="mx-3 align-self-center text-muted">Página {{ currentPage }} de {{ totalPages }}</span>
+            <button class="btn btn-outline-primary btn-sm" @click="nextPagina(totalPages)"
+                :disabled="currentPage >= totalPages">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -240,23 +248,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getClientes, addCliente, deleteCliente, updateCliente, getClientePorDni } from '@/api/clientes.js'
-import { api } from '@/api/index.js'
 import bcrypt from "bcryptjs";
 import { useAuth } from '@/composables/useAuth.js'
+import { useProvincias } from '@/composables/useProvincias.js'
+import { useNotifications } from '@/composables/useNotifications.js'
+import { useValidaciones } from '@/composables/useValidaciones.js'
+import { usePaginacion } from '@/composables/usePaginacion.js'
 
-import { useNotifications } from '../../composables/useNotifications.js'
 const { success, error, warning, confirmDelete, confirmSave, confirmActivate } = useNotifications();
-
-
+const { provincias, municipiosFiltrados, cargarProvincias, filtrarMunicipios: filtrarMunicipiosBase } = useProvincias();
+const { capitalizar, mayusculas, esEmailValido, esMovilValido, esDniNieValido, formatearFechaInput } = useValidaciones();
+const { currentPage, itemsPorPage, crearItemsPaginados, crearTotalPages, nextPagina, beforePagina, resetPagina } = usePaginacion(10);
 const { isAdmin } = useAuth()
-const admin = computed(() => isAdmin.value)
-
-// Variables para provincias (ahora se cargan desde API)
-const provincias = ref([]);
-const municipios = ref([]);
-const municipiosFiltrados = ref([]);
 
 const nuevoCliente = ref({
     dni: "",
@@ -281,93 +286,76 @@ const editando = ref(false);
 const clienteEditandoId = ref(null);
 const mostrarHistorico = ref(false);
 const clientes = ref([])
-const currentPage = ref(1);
-const clientesPorPage = 10;
 
 // Estados de validación
 const dniValido = ref(true);
 const movilValido = ref(true);
 const emailValido = ref(true);
 
+// Paginación
+const clientesPaginados = crearItemsPaginados(clientes);
+const totalPages = crearTotalPages(clientes);
+
 onMounted(async () => {
-    // ✅ Cargar provincias desde API
-    try {
-        const response = await api.get('/provmuni');
-        provincias.value = response.data.provincias || [];
-        municipios.value = response.data.municipios || {};
-    } catch (error) {
-        console.error('Error al cargar provincias:', error);
+    const cargado = await cargarProvincias();
+    if (!cargado) {
         error('Error', 'No se pudieron cargar las provincias');
     }
-
-    // Cargar clientes
     await cargarClientes();
-    currentPage.value = 1;
+    resetPagina();
 });
 
-// Computed properties
-const clientesPaginados = computed(() => {
-    const start = (currentPage.value - 1) * clientesPorPage;
-    const end = start + clientesPorPage;
-    return clientes.value.slice(start, end);
-});
-
-const totalPages = computed(() => {
-    return Math.ceil(clientes.value.length / clientesPorPage);
-});
-
-// ✅ FUNCIÓN CORREGIDA para filtrar municipios por código de provincia
 const filtrarMunicipios = () => {
-    console.log('🔍 Provincia seleccionada:', nuevoCliente.value.provincia);
-
-    if (!nuevoCliente.value.provincia) {
-        municipiosFiltrados.value = [];
-        nuevoCliente.value.municipio = "";
-        return;
-    }
-
-    // Buscar la provincia seleccionada para obtener su ID/código
-    const provinciaSeleccionada = provincias.value.find(p => p.nm === nuevoCliente.value.provincia);
-
-    if (!provinciaSeleccionada) {
-        console.warn('⚠️ Provincia no encontrada:', nuevoCliente.value.provincia);
-        municipiosFiltrados.value = [];
-        return;
-    }
-
-    // Obtener código de provincia (ej: "01", "15", "46")
-    const codigoProvincia = provinciaSeleccionada.id;
-
-    // Filtrar municipios que empiecen con ese código
-    // Ej: si provincia es "01" (Álava), buscar municipios "01001", "01002", etc.
-    municipiosFiltrados.value = municipios.value.filter(m =>
-        m.id.startsWith(codigoProvincia)
-    );
-
-    console.log(`🏙️ Encontrados ${municipiosFiltrados.value.length} municipios para ${nuevoCliente.value.provincia} (código: ${codigoProvincia})`);
-
-    // Reset municipio seleccionado
+    filtrarMunicipiosBase(nuevoCliente.value.provincia);
     nuevoCliente.value.municipio = "";
 };
 
 // Resto de tus funciones actuales...
 const cargarClientes = async () => {
     try {
-        clientes.value = await getClientes();
-    } catch (error) {
-        console.error("Error al cargar los clientes:", error);
-        error("Error", "No se pudieron cargar los clientes");
+        const todosClientes = await getClientes(mostrarHistorico.value);
+
+        // Filtrar clientes que tengan datos válidos
+        clientes.value = todosClientes.filter(c => c.dni && c.nombre);
+
+        resetPagina();
+
+    } catch (err) {
+        console.error("Error al cargar los clientes:", err);
     }
 };
 
-const guardarCliente = async () => {
-    if (!passwordsIguales.value) {
-        error("Las contraseñas deben coincidir");
+function validarPasswords() {
+    // Si ambos campos están vacíos (editando sin cambiar contraseña), es válido
+    if (nuevoCliente.value.password === '' && nuevoCliente.value.password2 === '') {
+        passwordsIguales.value = true;
         return;
+    }
+    passwordsIguales.value = nuevoCliente.value.password === nuevoCliente.value.password2;
+}
+
+const guardarCliente = async () => {
+    // Validar contraseñas
+    if (!editando.value) {
+        // Creando: contraseña obligatoria
+        if (!nuevoCliente.value.password) {
+            error("Error", "La contraseña es obligatoria");
+            return;
+        }
+        if (!passwordsIguales.value) {
+            error("Error", "Las contraseñas deben coincidir");
+            return;
+        }
+    } else {
+        // Editando: si puso contraseña, deben coincidir
+        if (nuevoCliente.value.password !== '' && !passwordsIguales.value) {
+            error("Error", "Las contraseñas deben coincidir");
+            return;
+        }
     }
 
     if (nuevoCliente.value.fecha_alta.includes("/")) {
-        nuevoCliente.value.fecha_alta = formatearFechaParaInput(
+        nuevoCliente.value.fecha_alta = formatearFechaInput(
             nuevoCliente.value.fecha_alta
         );
     }
@@ -381,7 +369,7 @@ const guardarCliente = async () => {
                 cliente.email === nuevoCliente.value.email
         );
         if (duplicado) {
-            error("DNI, móvil o email duplicados");
+            error("Error", "DNI, móvil o email duplicados");
             return;
         }
     }
@@ -390,19 +378,27 @@ const guardarCliente = async () => {
 
     if (!result.isConfirmed) return;
 
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(nuevoCliente.value.password, salt);
-    nuevoCliente.value.password = hash;
-    delete nuevoCliente.value.password2;
+    // Preparar cliente para guardar
+    const clienteAGuardar = { ...nuevoCliente.value };
+    delete clienteAGuardar.password2;
+
+    // Hashear contraseña solo si se proporcionó una nueva
+    if (clienteAGuardar.password && clienteAGuardar.password !== '') {
+        const salt = bcrypt.genSaltSync(10);
+        clienteAGuardar.password = bcrypt.hashSync(clienteAGuardar.password, salt);
+    } else {
+        // Si no hay contraseña nueva, eliminar el campo para no sobrescribir
+        delete clienteAGuardar.password;
+    }
 
     try {
         if (editando.value) {
-            const clienteActualizado = await updateCliente(clienteEditandoId.value, nuevoCliente.value);
+            const clienteActualizado = await updateCliente(clienteEditandoId.value, clienteAGuardar);
             const index = clientes.value.findIndex(c => c.id === clienteEditandoId.value);
             if (index !== -1) clientes.value[index] = clienteActualizado;
             success('Cliente modificado');
         } else {
-            const clienteAgregado = await addCliente(nuevoCliente.value);
+            const clienteAgregado = await addCliente(clienteAGuardar);
             clientes.value.push(clienteAgregado);
             success('Cliente agregado');
         }
@@ -411,15 +407,11 @@ const guardarCliente = async () => {
         recargaForm();
         clientes.value = await getClientes(mostrarHistorico.value);
 
-    } catch (error) {
-        console.error('Error al guardar cliente:', error);
+    } catch (err) {
+        console.error('Error al guardar cliente:', err);
         error('Error al guardar cliente', 'Inténtelo de nuevo o contacte con el administrador.');
     }
 };
-
-function validarPasswords() {
-    passwordsIguales.value = nuevoCliente.value.password === nuevoCliente.value.password2;
-}
 
 const eliminarCliente = async (movil) => {
     clientes.value = await getClientes(mostrarHistorico.value);
@@ -453,7 +445,7 @@ const editarCliente = (movil) => {
 
     let fechaFormateada = cliente.fecha_alta;
     if (fechaFormateada && fechaFormateada.includes("/")) {
-        fechaFormateada = formatearFechaParaInput(fechaFormateada);
+        fechaFormateada = formatearFechaInput(fechaFormateada);
     }
 
     nuevoCliente.value = { ...cliente, fecha_alta: fechaFormateada };
@@ -500,7 +492,7 @@ const buscarClientePorDNI = async (dni) => {
 
         // Si llega aquí, el cliente SÍ existe
         nuevoCliente.value = { ...cliente };
-        nuevoCliente.value.fecha_alta = formatearFechaParaInput(cliente.fecha_alta);
+        nuevoCliente.value.fecha_alta = formatearFechaInput(cliente.fecha_alta);
         nuevoCliente.value.lopd = cliente.lopd;
         nuevoCliente.value.password = "";
         nuevoCliente.value.password2 = "";
@@ -524,88 +516,24 @@ const buscarClientePorDNI = async (dni) => {
     }
 };
 
-// Validaciones
-const validarDniNie = (valor) => {
-    const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
-    const dniRegex = /^[0-9]{8}[A-Z]$/;
-    const nieRegex = /^[XYZ][0-9]{7}[A-Z]$/;
-
-    valor = valor.toUpperCase();
-
-    if (dniRegex.test(valor)) {
-        const numero = parseInt(valor.slice(0, 8), 10);
-        const letra = valor.charAt(8);
-        return letra === letras[numero % 23];
-    } else if (nieRegex.test(valor)) {
-        const nie = valor.replace('X', '0').replace('Y', '1').replace('Z', '2');
-        const numero = parseInt(nie.slice(0, 8), 10);
-        const letra = valor.charAt(8);
-        return letra === letras[numero % 23];
-    }
-    return false;
-};
-
+// Validaciones usando composable
 const validarDni = () => {
-    nuevoCliente.value.dni = nuevoCliente.value.dni.trim().toUpperCase();
-    dniValido.value = validarDniNie(nuevoCliente.value.dni);
+    nuevoCliente.value.dni = mayusculas(nuevoCliente.value.dni.trim());
+    dniValido.value = esDniNieValido(nuevoCliente.value.dni);
 };
 
 const capitalizarTexto = (campo) => {
-    const texto = nuevoCliente.value[campo] ?? '';
-    nuevoCliente.value[campo] = texto
-        .toLowerCase()
-        .split(' ')
-        .map(palabra => {
-            if (!palabra) return '';
-            return palabra.charAt(0).toLocaleUpperCase() + palabra.slice(1);
-        })
-        .join(' ');
+    nuevoCliente.value[campo] = capitalizar(nuevoCliente.value[campo]);
 };
 
-const movilRegex = /^[67]\d{8}$/;
-
 const validarMovil = () => {
-    const movil = nuevoCliente.value.movil.trim();
-
-    if (movil === '') {
-        movilValido.value = true;
-        return true;
-    }
-
-    if (movil.charAt(0) === '6' || movil.charAt(0) === '7') {
-        movilValido.value = movilRegex.test(movil);
-        return movilValido.value;
-    } else {
-        movilValido.value = false;
-        return false;
-    }
+    movilValido.value = esMovilValido(nuevoCliente.value.movil);
+    return movilValido.value;
 };
 
 const validarEmail = () => {
-    const email = nuevoCliente.value.email.trim();
-    if (email === '') {
-        emailValido.value = true;
-        return true;
-    }
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    emailValido.value = regex.test(email);
+    emailValido.value = esEmailValido(nuevoCliente.value.email);
 };
-
-function formatearFechaParaInput(fecha) {
-    if (!fecha) return '';
-
-    if (fecha.includes('/')) {
-        const [dd, mm, yyyy] = fecha.split('/');
-        return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-    }
-
-    if (fecha.includes('-')) {
-        const partes = fecha.split('-');
-        if (partes.length === 3) return fecha;
-    }
-
-    return '';
-}
 
 function recargaForm() {
     nuevoCliente.value = {

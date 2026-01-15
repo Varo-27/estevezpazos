@@ -1,6 +1,7 @@
 <template>
     <h4 class="text-center my-1 bg-primary-subtle py-1">Noticias</h4>
-    <div class="border rounded-3 shadow-sm p-4">
+
+    <div v-if="isAdmin" class="border rounded-3 shadow-sm p-4">
         <form @submit.prevent="agregarNoticia">
             <label for="title" class="col-sm-2 col-form-label fw-bold text-primary">Título:</label>
             <input type="text" class="form-control" id="title" v-model="nuevoTitulo" />
@@ -34,7 +35,8 @@
                         {{ isExpanded[noticia.id] ? "Mostrar menos..." : "Seguir leyendo..." }}
                     </a>
 
-                    <button class="btn btn-outline-secondary btn-sm" @click.prevent="eliminarNoticia(noticia.id)">
+                    <button v-if="isAdmin" class="btn btn-outline-secondary btn-sm"
+                        @click.prevent="eliminarNoticia(noticia.id)">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -45,14 +47,15 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import { getNoticias, addNoticia, deleteNoticia, editNoticia } from "@/api/noticias.js";
+import { getNoticias, addNoticia, deleteNoticia } from "@/api/noticias.js";
+import { useAuth } from '@/composables/useAuth.js'
+
+const { isAdmin } = useAuth()
 
 const noticias = ref([]);
 const isExpanded = reactive({});
-const noticiaEditada = ref(null);
 const nuevoTitulo = ref("");
 const nuevoContenido = ref("");
-const nuevaFecha = ref("");
 
 // Cargar noticias al montar el componente
 onMounted(async () => {

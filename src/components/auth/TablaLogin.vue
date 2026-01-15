@@ -35,6 +35,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth.js";
+import { useValidaciones } from "@/composables/useValidaciones.js";
 import Swal from "sweetalert2";
 
 const dni = ref("");
@@ -42,9 +43,10 @@ const pass = ref("");
 const router = useRouter();
 
 const { login } = useAuth();
+const { mayusculas } = useValidaciones();
 
 const capitalizarTexto = () => {
-  dni.value = dni.value.toUpperCase().trim();
+  dni.value = mayusculas(dni.value.trim());
 };
 
 const iniciarSesion = async () => {

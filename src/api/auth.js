@@ -6,6 +6,6 @@ export const loginUsuario = async (dni, password) => {
 };
 
 export const verificarAdmin = async () => {
-    const response = await api.get("/auth/check-admin");
+    const response = await api.get("/auth/verificar-admin");
     return response.data;
 };

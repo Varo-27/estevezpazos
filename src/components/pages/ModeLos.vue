@@ -173,30 +173,78 @@
           <button type="submit" class="btn btn-primary rounded-0 border shadow-none px-4 py-2">
             {{ editando ? 'Modificar' : 'Guardar' }}
           </button>
-          <button type="button" class="btn btn-danger rounded-0 border shadow-none px-4 py-2 ms-2">
-            Eliminar
+          <button type="button" @click="limpiarFormulario"
+            class="btn btn-secondary rounded-0 border shadow-none px-4 py-2 ms-2">
+            Limpiar
           </button>
         </div>
       </div>
     </form>
+
+    <!-- TABLA DE VEHÍCULOS -->
+    <div class="table-responsive mt-4">
+      <h5 class="text-center bg-primary-subtle py-1 mb-3"><i class="bi bi-list-ul me-2"></i>Listado de Vehículos</h5>
+      <table class="table table-striped table-hover table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th>Tipo</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Km</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="coche in coches" :key="coche._id">
+            <td>{{ coche.tipo }}</td>
+            <td>{{ coche.marca }}</td>
+            <td>{{ coche.modelo }}</td>
+            <td>{{ coche.anio }}</td>
+            <td>{{ coche.kilometros?.toLocaleString() }}</td>
+            <td>{{ coche.precio?.toLocaleString() }} €</td>
+            <td>
+              <span :class="{
+                'badge bg-success': coche.estado === 'disponible',
+                'badge bg-warning': coche.estado === 'reservado',
+                'badge bg-danger': coche.estado === 'vendido'
+              }">
+                {{ coche.estado }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" @click="editarVehiculo(coche)" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" @click="eliminarVehiculo(coche._id)" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr v-if="coches.length === 0">
+            <td colspan="8" class="text-center text-muted">No hay vehículos registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useNotifications } from "@/composables/useNotifications";
+import { useProvincias } from "@/composables/useProvincias";
+import { useValidaciones } from "@/composables/useValidaciones";
 import { ref, onMounted } from "vue"
-import { addArticulo } from "@/api/articulos.js"
-import { api } from '@/api/index.js'
+import { getCoches, addCoche, deleteCoche, updateCoche } from "@/api/coches.js"
 
 const { success, error } = useNotifications();
+const { provincias, municipiosFiltrados, cargarProvincias, filtrarMunicipios: filtrarMunicipiosBase } = useProvincias();
+const { capitalizar, mayusculas, esEmailValido, esMovilValido } = useValidaciones();
 
-// ✅ Variables de datos - UNA SOLA DECLARACIÓN
-const provincias = ref([]);
-const municipios = ref([]);
-const municipiosFiltrados = ref([]);
 const coches = ref([]);
 
-// ✅ Variables del formulario
 const vehiculo = ref({
   tipo: "",
   matricula: "",
@@ -222,30 +270,26 @@ const vehiculo = ref({
   fecha_publicacion: ""
 });
 
-// ✅ Variables de estado
 const editando = ref(false);
+const cocheEditandoId = ref(null);
 const archivo = ref(null);
 const emailValido = ref(true);
 const movilValido = ref(true);
 
-// ✅ UNA SOLA función onMounted
 onMounted(async () => {
-  try {
-    // Cargar provincias desde API
-    const provmuniResponse = await api.get('/provmuni');
-    provincias.value = provmuniResponse.data.provincias || [];
-    municipios.value = provmuniResponse.data.municipios || {};
-
-    // Cargar coches desde API
-    const cochesResponse = await api.get('/coches');
-    coches.value = cochesResponse.data || [];
-  } catch (error) {
-    console.error('Error al cargar datos:', error);
-    error('No se pudieron cargar los datos necesarios');
-  }
+  await cargarDatos();
 });
 
-// ✅ Función para manejar cambio de archivo
+const cargarDatos = async () => {
+  try {
+    await cargarProvincias();
+    coches.value = await getCoches();
+  } catch (err) {
+    console.error('Error al cargar datos:', err);
+    error('Error', 'No se pudieron cargar los datos necesarios');
+  }
+};
+
 const onFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -253,146 +297,148 @@ const onFileChange = (event) => {
   }
 };
 
-// ✅ FUNCIÓN CORREGIDA para ModeLos
 const filtrarMunicipios = () => {
-  console.log('🔍 Filtrando municipios para:', vehiculo.value.ubicacion.provincia);
-
-  if (!vehiculo.value.ubicacion.provincia) {
-    municipiosFiltrados.value = [];
-    vehiculo.value.ubicacion.ciudad = "";
-    return;
-  }
-
-  // Buscar provincia seleccionada
-  const provinciaSeleccionada = provincias.value.find(p => p.nm === vehiculo.value.ubicacion.provincia);
-
-  if (!provinciaSeleccionada) {
-    console.warn('⚠️ Provincia no encontrada:', vehiculo.value.ubicacion.provincia);
-    municipiosFiltrados.value = [];
-    return;
-  }
-
-  // Filtrar municipios por código de provincia
-  const codigoProvincia = provinciaSeleccionada.id;
-  municipiosFiltrados.value = municipios.value.filter(m =>
-    m.id.startsWith(codigoProvincia)
-  );
-
-  console.log(`🏙️ Encontrados ${municipiosFiltrados.value.length} municipios para código ${codigoProvincia}`);
-
-  // Reset ciudad
+  filtrarMunicipiosBase(vehiculo.value.ubicacion.provincia);
   vehiculo.value.ubicacion.ciudad = "";
 };
 
-// ✅ Función para guardar vehículo
 const guardarVehiculo = async () => {
   try {
-    const formData = new FormData();
+    const cocheData = {
+      tipo: vehiculo.value.tipo,
+      matricula: vehiculo.value.matricula,
+      marca: vehiculo.value.marca,
+      modelo: vehiculo.value.modelo,
+      anio: parseInt(vehiculo.value.anio),
+      estado: vehiculo.value.estado,
+      kilometros: parseInt(vehiculo.value.kilometros),
+      precio: parseInt(vehiculo.value.precio),
+      combustible: vehiculo.value.combustible,
+      transmision: vehiculo.value.transmision,
+      potencia_cv: parseInt(vehiculo.value.potencia_cv),
+      descripcion: vehiculo.value.descripcion,
+      ubicacion: vehiculo.value.ubicacion,
+      contacto: vehiculo.value.contacto,
+      fecha_publicacion: vehiculo.value.fecha_publicacion || new Date().toISOString()
+    };
 
-    if (archivo.value) {
-      formData.append("imagen", archivo.value);
-    }
-
-    formData.append("vehiculo", JSON.stringify(vehiculo.value));
-
-    const nuevo = await addArticulo(formData);
-
-    if (nuevo && nuevo._id) {
-      success("Vehículo guardado", "El vehículo ha sido guardado correctamente.")
-
-      // Limpiar formulario
-      Object.assign(vehiculo.value, {
-        tipo: "",
-        matricula: "",
-        marca: "",
-        modelo: "",
-        anio: "",
-        estado: "disponible",
-        kilometros: "",
-        precio: "",
-        combustible: "",
-        transmision: "",
-        potencia_cv: "",
-        descripcion: "",
-        ubicacion: { provincia: "", ciudad: "" },
-        contacto: { nombre: "", telefono: "", email: "" },
-        fecha_publicacion: ""
-      });
-      archivo.value = null;
+    if (editando.value) {
+      // Pasar archivo.value como segundo parámetro (imagen)
+      await updateCoche(cocheEditandoId.value, cocheData, archivo.value);
+      success("Vehículo actualizado", "El vehículo ha sido actualizado correctamente.");
     } else {
-      throw new Error('No se recibió respuesta válida del servidor');
+      // Pasar archivo.value como segundo parámetro (imagen)
+      await addCoche(cocheData, archivo.value);
+      success("Vehículo guardado", "El vehículo ha sido guardado correctamente.");
     }
-  } catch (error) {
-    console.error("Error al guardar:", error);
-    error("Error al guardar el vehículo", "Por favor, inténtalo de nuevo.")
+
+    // Recargar lista y limpiar formulario
+    await cargarDatos();
+    limpiarFormulario();
+
+  } catch (err) {
+    console.error("Error al guardar:", err);
+    error("Error", "Error al guardar el vehículo. Por favor, inténtalo de nuevo.");
   }
 };
 
-// ✅ Funciones auxiliares
+const editarVehiculo = (coche) => {
+  editando.value = true;
+  cocheEditandoId.value = coche._id;
+
+  vehiculo.value = {
+    tipo: coche.tipo || "",
+    matricula: coche.matricula || "",
+    marca: coche.marca || "",
+    modelo: coche.modelo || "",
+    anio: coche.anio?.toString() || "",
+    estado: coche.estado || "disponible",
+    kilometros: coche.kilometros?.toString() || "",
+    precio: coche.precio?.toString() || "",
+    combustible: coche.combustible || "",
+    transmision: coche.transmision || "",
+    potencia_cv: coche.potencia_cv?.toString() || "",
+    descripcion: coche.descripcion || "",
+    ubicacion: coche.ubicacion || { provincia: "", ciudad: "" },
+    contacto: coche.contacto || { nombre: "", telefono: "", email: "" },
+    fecha_publicacion: coche.fecha_publicacion?.split('T')[0] || ""
+  };
+
+  // Filtrar municipios si hay provincia
+  if (vehiculo.value.ubicacion.provincia) {
+    filtrarMunicipios();
+  }
+};
+
+const eliminarVehiculo = async (id) => {
+  if (!confirm('¿Estás seguro de que quieres eliminar este vehículo?')) return;
+
+  try {
+    await deleteCoche(id);
+    success("Vehículo eliminado", "El vehículo ha sido eliminado correctamente.");
+    await cargarDatos();
+  } catch (err) {
+    console.error("Error al eliminar:", err);
+    error("Error", "Error al eliminar el vehículo.");
+  }
+};
+
+const limpiarFormulario = () => {
+  editando.value = false;
+  cocheEditandoId.value = null;
+  archivo.value = null;
+
+  const inputFile = document.getElementById('foto');
+  if (inputFile) {
+    inputFile.value = '';
+  }
+
+  Object.assign(vehiculo.value, {
+    tipo: "",
+    matricula: "",
+    marca: "",
+    modelo: "",
+    anio: "",
+    estado: "disponible",
+    kilometros: "",
+    precio: "",
+    combustible: "",
+    transmision: "",
+    potencia_cv: "",
+    descripcion: "",
+    ubicacion: { provincia: "", ciudad: "" },
+    contacto: { nombre: "", telefono: "", email: "" },
+    fecha_publicacion: ""
+  });
+  municipiosFiltrados.value = [];
+};
+
 const todoTexto = (campo) => {
-  const texto = vehiculo.value[campo] ?? '';
-  vehiculo.value[campo] = texto.toUpperCase();
+  vehiculo.value[campo] = mayusculas(vehiculo.value[campo]);
 };
 
 const capitalizarTexto = (campo) => {
-  const texto = vehiculo.value[campo] ?? '';
-  vehiculo.value[campo] = texto
-    .toLowerCase()
-    .split(' ')
-    .map(palabra => {
-      if (!palabra) return '';
-      return palabra.charAt(0).toLocaleUpperCase() + palabra.slice(1);
-    })
-    .join(' ');
+  vehiculo.value[campo] = capitalizar(vehiculo.value[campo]);
 };
 
 const capitalizarNombreContacto = () => {
-  const nombre = vehiculo.value.contacto.nombre ?? '';
-  vehiculo.value.contacto.nombre = nombre
-    .toLowerCase()
-    .split(' ')
-    .map(palabra => palabra ? palabra.charAt(0).toUpperCase() + palabra.slice(1) : '')
-    .join(' ');
+  vehiculo.value.contacto.nombre = capitalizar(vehiculo.value.contacto.nombre);
 };
 
 const validarEmail = () => {
-  const email = vehiculo.value.contacto.email || '';
-  if (email === '') {
-    emailValido.value = true;
-    return true;
-  }
-
-  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  emailValido.value = regex.test(email);
-
+  emailValido.value = esEmailValido(vehiculo.value.contacto.email);
   if (!emailValido.value) {
-    error("Email invalido", "Por favor, introduce un email válido")
+    error("Email invalido", "Por favor, introduce un email válido");
   }
   return emailValido.value;
 };
 
 const validarMovil = () => {
-  const movil = vehiculo.value.contacto.telefono?.trim() || '';
-  if (movil === '') {
-    movilValido.value = true;
-    return true;
+  movilValido.value = esMovilValido(vehiculo.value.contacto.telefono);
+  if (!movilValido.value && vehiculo.value.contacto.telefono?.trim()) {
+    error('Móvil inválido', 'El número de móvil debe tener 9 dígitos y comenzar con 6 o 7.');
   }
-
-  const movilRegex = /^[67]\d{8}$/;
-
-  if (movil.charAt(0) === '6' || movil.charAt(0) === '7') {
-    movilValido.value = movilRegex.test(movil);
-    if (movilValido.value) {
-      return true;
-    } else {
-      error('Móvil inválido', 'El número de móvil debe tener 9 dígitos.')
-      return false;
-    }
-  } else {
-    movilValido.value = false;
-    error('Móvil inválido', 'El número de móvil debe comenzar con 6 o 7.')
-    return false;
-  }
+  return movilValido.value;
 };
 </script>
 

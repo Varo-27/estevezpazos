@@ -1,9 +1,10 @@
 import { api } from "./index.js";
 
-export const getClientes = async () => {
-    const response = await api.get(
-        "/clientes?_sort=apellidos&_order=asc&historico=true"
-    );
+export const getClientes = async (incluirHistorico = false) => {
+    const url = incluirHistorico
+        ? "/clientes?_sort=apellidos&_order=asc"
+        : "/clientes?_sort=apellidos&_order=asc&historico=true";
+    const response = await api.get(url);
     return response.data;
 };
 

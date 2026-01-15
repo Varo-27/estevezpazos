@@ -1,15 +1,15 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
+import { conectarDB } from "./config/db.js";
 
-// Configuración para __dirname en ES6
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,29 +32,31 @@ app.use(
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Log de requests
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
-    next();
-});
+// Log de requests (solo en desarrollo)
+if (process.env.NODE_ENV !== "production") {
+    app.use((req, res, next) => {
+        console.log(`${req.method} ${req.path}`);
+        next();
+    });
+}
 
-// ✅ IMPORTAR TODAS LAS RUTAS
+// Importar rutas
 import authRoutes from "./routes/authRoutes.js";
-import articulosRoutes from "./routes/articulosRoutes.js";
 import clientesRoutes from "./routes/clientesRoutes.js";
 import noticiasRoutes from "./routes/noticiasRoutes.js";
 import tallerRoutes from "./routes/tallerRoutes.js";
 import contactoRoutes from "./routes/contactoRoutes.js";
+import cochesRoutes from "./routes/cochesRoutes.js";
 
-// ✅ USAR TODAS LAS RUTAS
+// Registrar rutas
 app.use("/api/auth", authRoutes);
-app.use("/api/articulos", articulosRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/noticias", noticiasRoutes);
 app.use("/api/taller", tallerRoutes);
 app.use("/api/contacto", contactoRoutes);
+app.use("/api/coches", cochesRoutes);
 
-// ✅ ENDPOINTS PARA DATOS ESTÁTICOS
+// Endpoint para datos estáticos de provincias/municipios
 app.get("/api/provmuni", (req, res) => {
     try {
         const provmuniData = JSON.parse(
@@ -64,18 +66,6 @@ app.get("/api/provmuni", (req, res) => {
     } catch (error) {
         console.error("Error al cargar provmuni:", error);
         res.status(500).json({ error: "Error al cargar datos de provincias" });
-    }
-});
-
-app.get("/api/coches", (req, res) => {
-    try {
-        const cochesData = JSON.parse(
-            readFileSync(path.join(__dirname, "data/coches.json"), "utf-8")
-        );
-        res.json(cochesData);
-    } catch (error) {
-        console.error("Error al cargar coches:", error);
-        res.status(500).json({ error: "Error al cargar datos de coches" });
     }
 });
 
@@ -108,17 +98,19 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: "Error interno del servidor" });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-    console.log(`📁 Rutas API disponibles:`);
-    console.log(`   🔐 /api/auth/login`);
-    console.log(`   🚗 /api/articulos`);
-    console.log(`   👥 /api/clientes`);
-    console.log(`   📰 /api/noticias`);
-    console.log(`   🔧 /api/taller`);
-    console.log(`   🌍 /api/provmuni`);
-    console.log(`   🚙 /api/coches`);
-    console.log(`   📧 /api/contacto/enviar`);
-});
+// Iniciar servidor
+const iniciarServidor = async () => {
+    try {
+        await conectarDB();
+        app.listen(PORT, () => {
+            console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error("Error al iniciar servidor:", error);
+        process.exit(1);
+    }
+};
+
+iniciarServidor();
 
 export default app;

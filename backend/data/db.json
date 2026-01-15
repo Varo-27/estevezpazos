@@ -355,7 +355,7 @@
     {
       "dni": "99999999R",
       "fecha_alta": "2025-02-10",
-      "nombre": "Francisco",
+      "nombre": "Paco",
       "apellidos": "Alonso Gil",
       "email": "gil@gil.com",
       "movil": "654654654",
@@ -363,8 +363,8 @@
       "provincia": "Pontevedra",
       "municipio": "Vigo",
       "historico": true,
-      "lopd": false,
-      "password": "",
+      "lopd": true,
+      "password": "$2b$10$kAZ6A/3g58J0ZxPei20/redKBq5tBwh0l24RVSyBatRfDMlyirXVW",
       "tipoCliente": "user",
       "id": "9afd"
     },

@@ -110,7 +110,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(cita, index) in citasPaginadas" :key="cita.id">
-                        <td class="text-center">{{ (currentPage - 1) * citasPorPage + index + 1 }}</td>
+                        <td class="text-center">{{ (currentPage - 1) * itemsPorPage + index + 1 }}</td>
                         <td class="text-center">{{ cita.fechaAlta }}</td>
                         <td class="text-center">{{ cita.matricula }}</td>
                         <td class="text-center">{{ cita.movilcliente }}</td>
@@ -135,11 +135,12 @@
 
         <!-- Paginación -->
         <div class="d-flex justify-content-center my-3">
-            <button class="btn btn-outline-primary btn-sm me-2" @click="currentPage--" :disabled="currentPage <= 1">
+            <button class="btn btn-outline-primary btn-sm me-2" @click="beforePagina" :disabled="currentPage <= 1">
                 <i class="bi bi-chevron-left"></i>
             </button>
             <span class="mx-3 align-self-center text-muted">Página {{ currentPage }} de {{ totalPages }}</span>
-            <button class="btn btn-outline-primary btn-sm" @click="currentPage++" :disabled="currentPage >= totalPages">
+            <button class="btn btn-outline-primary btn-sm" @click="nextPagina(totalPages)"
+                :disabled="currentPage >= totalPages">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -147,32 +148,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { getCitasTaller, deleteCitaTaller, addCitaTaller, updateCitaTaller } from "@/api/taller.js";
 import { useNotifications } from '@/composables/useNotifications.js';
+import { useValidaciones } from '@/composables/useValidaciones.js';
+import { usePaginacion } from '@/composables/usePaginacion.js';
 
-const { success, error, warning, confirmSave, confirmDelete} = useNotifications();
+const { success, error, warning, confirmSave, confirmDelete } = useNotifications();
+const { esMovilValido } = useValidaciones();
+const { currentPage, itemsPorPage, crearItemsPaginados, crearTotalPages, nextPagina, beforePagina, resetPagina } = usePaginacion(5);
 
-// ✅ Constantes
 const servicios = ["Revisión", "PreITV", "Neumáticos", "Frenos", "Cambio de aceite"];
-const movilRegex = /^[67]\d{8}$/;
-const citasPorPage = 5;
 
-// ✅ Estado reactivo
 const citas = ref([]);
 const nuevaCita = ref(crearCitaVacia());
 const editando = ref(false);
 const citaEditandoId = ref(null);
 const movilValido = ref(true);
-const currentPage = ref(1);
 
-// ✅ Computed properties
-const citasPaginadas = computed(() => {
-    const start = (currentPage.value - 1) * citasPorPage;
-    return citas.value.slice(start, start + citasPorPage);
-});
-
-const totalPages = computed(() => Math.ceil(citas.value.length / citasPorPage));
+const citasPaginadas = crearItemsPaginados(citas);
+const totalPages = crearTotalPages(citas);
 
 // ✅ Función auxiliar para crear cita vacía
 function crearCitaVacia() {
@@ -194,21 +189,17 @@ onMounted(async () => {
 const cargarCitas = async () => {
     try {
         citas.value = await getCitasTaller();
-        success('Citas cargadas correctamente');
     } catch (err) {
         error('Error al cargar las citas');
         console.error(err);
     }
 };
 
-// ✅ Validar móvil
 const validarMovil = () => {
-    const movil = nuevaCita.value.movilcliente.trim();
-    movilValido.value = !movil || movilRegex.test(movil);
+    movilValido.value = esMovilValido(nuevaCita.value.movilcliente);
     return movilValido.value;
 };
 
-// ✅ Guardar cita (crear o editar)
 const guardarCita = async () => {
     // Validaciones
     if (!nuevaCita.value.acepta) {
