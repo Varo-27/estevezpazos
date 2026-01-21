@@ -1,43 +1,38 @@
 <template>
   <nav class="navbar navbar-dark bg-primary sticky-top navbar-expand-lg" ref="navbarRef">
-    <div class="container-fluid">
-      <!-- Marca o logo -->
-      <a class="navbar-brand" href="#">EmpresaTeis</a>
-
-      <!-- Contenedor para hamburguesa y dropdown (siempre a la derecha) -->
-      <div class="d-flex align-items-center order-lg-2">
-        <!-- Dropdown de acceso/registro -->
-        <div class="dropdown" ref="dropdownRef">
-          <button class="btn btn-primary dropdown-toggle" type="button" @click="toggleDropdown">
-            <i class="bi bi-person fs-2"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end" :class="{ show: dropdownAbierto }">
-            <li v-if="!isLogueado">
-              <router-link class="dropdown-item" to="/login" @click="cerrarTodo">Acceso</router-link>
-            </li>
-            <li v-if="!isLogueado">
-              <router-link class="dropdown-item" to="/clientes" @click="cerrarTodo">Registro</router-link>
-            </li>
-            <li v-if="isLogueado">
-              <span class="dropdown-item">Hola {{ userName }}</span>
-            </li>
-            <li v-if="isLogueado">
-              <a class="dropdown-item" href="#" @click.prevent="cerrarSesion">Cerrar Sesión</a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Botón de hamburguesa (solo visible en móvil) -->
-        <button class="navbar-toggler ms-2" type="button" @click="toggleMenu" aria-controls="navbarNav"
+    <div class="container-fluid d-flex align-items-center position-relative">
+      <!-- Logo y hamburguesa a la izquierda en móvil -->
+      <div class="d-flex align-items-center flex-shrink-0">
+        <a class="navbar-brand me-2" href="#">EmpresaTeis</a>
+        <button class="navbar-toggler d-lg-none" type="button" @click="toggleMenu" aria-controls="navbarNav"
           :aria-expanded="menuAbierto" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
 
-      <!-- Links de navegación con animación -->
-      <div class="navbar-collapse order-lg-1" :class="{ 'menu-abierto': menuAbierto, 'menu-cerrado': !menuAbierto }"
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" @click="toggleDropdown">
+          <i class="bi bi-person fs-2"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" :class="{ show: dropdownAbierto }">
+          <li v-if="!isLogueado">
+            <router-link class="dropdown-item" to="/login" @click="cerrarTodo">Acceso</router-link>
+          </li>
+          <li v-if="!isLogueado">
+            <router-link class="dropdown-item" to="/clientes" @click="cerrarTodo">Registro</router-link>
+          </li>
+          <li v-if="isLogueado">
+            <span class="dropdown-item">Hola {{ userName }}</span>
+          </li>
+          <li v-if="isLogueado">
+            <a class="dropdown-item" href="#" @click.prevent="cerrarSesion">Cerrar Sesión</a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="navbar-collapse flex-grow-1" :class="{ 'menu-abierto': menuAbierto, 'menu-cerrado': !menuAbierto }"
         id="navbarNav" ref="navbarCollapse">
-        <ul class="navbar-nav mx-auto">
+        <ul class="navbar-nav mx-lg-auto">
           <li class="nav-item">
             <router-link class="nav-link" to="/" @click="cerrarMenu">Inicio</router-link>
           </li>
@@ -151,12 +146,17 @@ const cerrarSesion = async () => {
   max-height: 500px;
 }
 
-/* En pantallas grandes, siempre visible */
+/* En pantallas grandes, siempre visible y centrado */
 @media (min-width: 992px) {
   .navbar-collapse {
     display: flex !important;
     max-height: none !important;
     overflow: visible;
+    justify-content: center;
+  }
+
+  .dropdown.ms-lg-auto {
+    margin-left: auto !important;
   }
 }
 </style>
