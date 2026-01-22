@@ -3,7 +3,7 @@
     <div class="container-fluid d-flex align-items-center position-relative">
 
       <div class="d-flex align-items-center flex-shrink-0">
-        <a class="navbar-brand me-2" href="#">EmpresaTeis</a>
+        <a class="navbar-brand me-2" href="#">CarTeis</a>
         <button class="navbar-toggler d-lg-none" type="button" @click="toggleMenu" aria-controls="navbarNav"
           :aria-expanded="menuAbierto" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
