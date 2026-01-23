@@ -48,7 +48,7 @@
               <span class="nav-underline">Contacto</span>
             </router-link>
           </li>
-          <form class="d-flex pb-3 ps-0 pb-lg-0 form-control-sm" role="search">
+          <form class="d-flex pb-3 ps-0 pb-lg-0 form-control-sm" role="search" @submit.prevent="buscar">
             <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar"
               v-model="query" />
             <button class="btn btn-light" type="submit"><i class="bi bi-search"></i></button>
@@ -83,6 +83,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth.js'
+import { useRouter } from 'vue-router'
+
 
 const { isLogueado, userName, initAuth, logout } = useAuth()
 
@@ -133,10 +135,28 @@ const cerrarSesion = async () => {
   cerrarTodo()
   logout()
   setTimeout(() => {
-    Talle
     window.location.href = '/'
   }, 1500)
 }
+
+
+const router = useRouter();
+const query = ref('');
+
+function buscar() {
+  const q = query.value ? String(query.value).trim() : ''
+  if (!q) return
+
+  router.push({
+    name: 'Buscar',
+    query: { q }
+  })
+
+  query.value = '';
+}
+
+
+
 </script>
 
 <style>

@@ -13,6 +13,7 @@ import ModeLos from "@/components/pages/ModeLos.vue";
 import CitasTaller from "@/components/pages/CitasTaller.vue";
 import Ventas from "@/components/pages/Ventas.vue";
 import ConTacto from "@/components/pages/ConTacto.vue";
+import Buscar from "@/components/pages/Buscar.vue";
 
 // Componentes de autenticación
 import TablaLogin from "@/components/auth/TablaLogin.vue";
@@ -72,6 +73,11 @@ const routes = [
         path: "/contacto",
         name: "ConTacto",
         component: ConTacto,
+    },
+    {
+        path: "/buscar",
+        name: "Buscar",
+        component: Buscar,
     },
     {
         path: "/:pathMatch(.*)*",
