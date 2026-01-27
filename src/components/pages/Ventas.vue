@@ -39,8 +39,12 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div class="col" v-for="coche in cochesFiltrados" :key="coche._id">
                 <div class="card h-100 shadow-sm">
-                    <!-- Imagen placeholder -->
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    <!-- Imagen: usar imagen guardada (solo nombre de archivo) o placeholder -->
+                    <div v-if="imagenSrc(coche)" class="card-img-top p-0" style="height:200px; overflow:hidden;">
+                        <img :src="imagenSrc(coche)" :alt="coche.marca + ' ' + coche.modelo"
+                            style="width:100%; height:100%; object-fit:cover; display:block;">
+                    </div>
+                    <div v-else class="card-img-top bg-light d-flex align-items-center justify-content-center"
                         style="height: 200px;">
                         <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
                     </div>
@@ -64,7 +68,7 @@
                             <li><i class="bi bi-speedometer2 me-2"></i><strong>Km:</strong> {{
                                 coche.kilometros?.toLocaleString() }}</li>
                             <li><i class="bi bi-fuel-pump me-2"></i><strong>Combustible:</strong> {{ coche.combustible
-                            }}</li>
+                                }}</li>
                             <li><i class="bi bi-gear me-2"></i><strong>Transmisión:</strong> {{ coche.transmision }}
                             </li>
                             <li><i class="bi bi-lightning me-2"></i><strong>Potencia:</strong> {{ coche.potencia_cv }}
@@ -110,6 +114,11 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body" v-if="cocheSeleccionado">
+                        <div class="mb-3 text-center" v-if="imagenSrc(cocheSeleccionado)">
+                            <img :src="imagenSrc(cocheSeleccionado)"
+                                :alt="cocheSeleccionado.marca + ' ' + cocheSeleccionado.modelo"
+                                class="img-fluid rounded" style="max-height:300px; object-fit:cover; width:100%;">
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <h6 class="text-primary">Características</h6>
@@ -122,7 +131,7 @@
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <span>Kilómetros</span><strong>{{ cocheSeleccionado.kilometros?.toLocaleString()
-                                        }} km</strong>
+                                            }} km</strong>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <span>Combustible</span><strong>{{ cocheSeleccionado.combustible }}</strong>
@@ -197,6 +206,19 @@ const filtroEstado = ref('')
 onMounted(async () => {
     await cargarCoches()
 })
+
+// Construye la URL pública de la imagen a partir del valor almacenado en la BD
+// Usa la variable de entorno VITE_API_URL si está disponible, si no usa http://localhost:5000
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const imagenSrc = (coche) => {
+    if (!coche || !coche.imagen) return null
+    const name = String(coche.imagen).trim()
+    // Si ya es una URL absoluta, devolverla
+    if (/^https?:\/\//i.test(name)) return name
+    // Normalizar empezando por uploads
+    const filename = name.replace(/^\/+/, '')
+    return `${API_BASE}/uploads/${filename}`
+}
 
 const cargarCoches = async () => {
     try {

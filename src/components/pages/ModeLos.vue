@@ -23,12 +23,12 @@
           </div>
         </div>
         <div class="col-12 col-md-2 d-flex align-items-center">
-          <label for="color" class="form-label mb-0 me-2 text-nowrap ms-2">Matricula:</label>
+          <label for="color" class="form-label mb-0 me-2 text-nowrap">Matricula:</label>
           <input type="text" id="matricula" @blur="todoTexto('matricula')" v-model="vehiculo.matricula"
             class="form-control rounded-0 shadow-none border">
         </div>
 
-        <div class="col-12 col-md-2 d-flex align-items-center ms-2">
+        <div class="col-12 col-md-2 d-flex align-items-center">
           <label for="marca" class="form-label mb-0 me-2 text-nowrap">Marca:</label>
           <input type="text" id="marca" @blur="capitalizarTexto('marca')" v-model="vehiculo.marca"
             class="form-control rounded-0 shadow-none border" required>
@@ -80,7 +80,7 @@
           </select>
         </div>
         <div class="col-12 col-md-3 d-flex align-items-center">
-          <label for="transmision" class="form-label mb-0 ms-2 me-2 text-nowrap">Transmisión:</label>
+          <label for="transmision" class="form-label mb-0 me-2 text-nowrap">Transmisión:</label>
           <div class="d-flex align-items-center">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" id="tipo-automatica" value="automatica"
@@ -124,7 +124,7 @@
 
       <!-- FILA: Ubicación -->
       <div class="row g-3 align-items-center mt-3">
-        <div class="col-12 col-md-3 d-flex align-items-center">
+        <div class="col-12 col-md-4 d-flex align-items-center me-2">
           <label for="provincia" class="form-label mb-0 me-2 text-nowrap">Provincia:</label>
           <select id="provincia" @change="filtrarMunicipios" v-model="vehiculo.ubicacion.provincia"
             class="form-select rounded-0 shadow-none border">
@@ -133,7 +133,7 @@
           </select>
         </div>
 
-        <div class="col-12 col-md-4 ms-4 d-flex align-items-center">
+        <div class="col-12 col-md-4 d-flex align-items-center me-2">
           <label for="ciudad" class="form-label mb-0 me-2 text-nowrap">Ciudad:</label>
           <select id="ciudad" v-model="vehiculo.ubicacion.ciudad" class="form-select rounded-0 shadow-none border">
             <option disabled value="">Seleccione ciudad</option>
@@ -141,7 +141,7 @@
           </select>
         </div>
 
-        <div class="col-12 col-md-3 ms-4 d-flex align-items-center">
+        <div class="col-12 col-md-3 d-flex align-items-center">
           <label for="fecha_publicacion" class="form-label mb-0 me-2 text-nowrap">Fecha Publicación:</label>
           <input type="date" id="fecha_publicacion" v-model="vehiculo.fecha_publicacion"
             class="form-control text-center rounded-0 shadow-none border">
@@ -150,17 +150,17 @@
 
       <!-- FILA: Contacto -->
       <div class="row g-3 align-items-center mt-3">
-        <div class="col-12 col-md-4 d-flex align-items-center">
+        <div class="col-12 col-md-4 d-flex align-items-center me-2">
           <label for="contacto.nombre" class="form-label mb-0 me-2 text-nowrap">Nombre Contacto:</label>
           <input type="text" id="contacto.nombre" @blur="capitalizarNombreContacto" v-model="vehiculo.contacto.nombre"
             class="form-control rounded-0 shadow-none border">
         </div>
-        <div class="col-12 col-md-2 ms-4 d-flex align-items-center">
+        <div class="col-12 col-md-3 d-flex align-items-center">
           <label for="contacto.telefono" class="form-label text-end mb-0 me-2 text-nowrap">Teléfono:</label>
           <input type="tel" id="contacto.telefono" @blur="validarMovil()" v-model="vehiculo.contacto.telefono"
             class="form-control text-center rounded-0 shadow-none border">
         </div>
-        <div class="col-12 col-md-4 d-flex ms-4 align-items-center">
+        <div class="col-12 col-md-4 d-flex align-items-center">
           <label for="contacto.email" class="form-label mb-0 me-2 text-nowrap">Email:</label>
           <input type="email" id="contacto.email" @blur="validarEmail()" v-model="vehiculo.contacto.email"
             class="form-control rounded-0 shadow-none border">
@@ -176,6 +176,9 @@
           <button type="button" @click="limpiarFormulario"
             class="btn btn-secondary rounded-0 border shadow-none px-4 py-2 ms-2">
             Limpiar
+          </button>
+          <button type="button" @click="imprimirPDF"
+            class="btn btn-secondary rounded-0 border shadow-none px-4 py-2 ms-2"><i class="bi bi-printer"></i>Imprimir
           </button>
         </div>
       </div>
@@ -237,6 +240,8 @@ import { useNotifications } from "@/composables/useNotifications";
 import { useProvincias } from "@/composables/useProvincias";
 import { useValidaciones } from "@/composables/useValidaciones";
 import { ref, onMounted } from "vue"
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import { getCoches, addCoche, deleteCoche, updateCoche } from "@/api/coches.js"
 
 const { success, error } = useNotifications();
@@ -366,7 +371,9 @@ const editarVehiculo = (coche) => {
 
   // Filtrar municipios si hay provincia
   if (vehiculo.value.ubicacion.provincia) {
-    filtrarMunicipios();
+    // Cargar municipios de la provincia y mantener la ciudad existente
+    filtrarMunicipiosBase(vehiculo.value.ubicacion.provincia);
+    vehiculo.value.ubicacion.ciudad = coche.ubicacion?.ciudad || vehiculo.value.ubicacion.ciudad || "";
   }
 };
 
@@ -440,6 +447,51 @@ const validarMovil = () => {
   }
   return movilValido.value;
 };
+
+const imprimirPDF = () => {
+
+  const doc = new jsPDF();
+
+  if (typeof autoTable === 'function') {
+    console.log('autoTable (función) está disponible');
+  } else {
+    console.error('autoTable no está disponible como función');
+  }
+
+  doc.setFontSize(18);
+  doc.text("Listado de Vehículos", 14, 20);
+
+  let y = 30;
+  doc.setFontSize(12);
+
+  // Definir los encabezados de la tabla
+  const headers = ["Matrícula", "Marca", "Modelo", "Estado", "Combustible", "Precio"];
+  // Añadir encabezados y en el body van los campos que hemos elegido no hace consultas sino que los obtiene del template
+  // el principio del componente.
+  // podríamos hacer consultas pero será algo que dejaremos para la factura aunque prefiero siempre tenerlos cargados desde
+  try {
+    autoTable(doc, {
+      starty: y,
+      head: [headers],
+      body: coches.value.map(coche => [
+        coche.matricula,
+        coche.marca,
+        coche.modelo,
+        coche.estado,
+        coche.combustible,
+        coche.precio
+      ]),
+      theme: "striped", // Aplicar tema de rayas a la tabla
+      styles: { fontSize: 10, cellPadding: 3 }
+    });
+  } catch (err) {
+    console.error('Error generando autoTable:', err);
+    error('Error PDF', 'No se pudo generar la tabla en el PDF.');
+    return;
+  }
+
+  doc.save('listado_vehiculos.pdf');
+}
 </script>
 
 <style>

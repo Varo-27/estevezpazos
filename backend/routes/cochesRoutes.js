@@ -44,12 +44,14 @@ const upload = multer({
 const router = express.Router();
 
 // Función auxiliar para eliminar imagen
+// Soporta tanto el formato almacenado anteriormente ('/uploads/xxx')
+// como el nuevo formato (solo 'xxx'). Borra desde la carpeta UPLOADS_PATH.
 const eliminarImagen = (imagenPath) => {
-    if (imagenPath) {
-        const fullPath = path.join(__dirname, "..", imagenPath);
-        if (fs.existsSync(fullPath)) {
-            fs.unlinkSync(fullPath);
-        }
+    if (!imagenPath) return;
+    const filename = path.basename(imagenPath); // extrae 'vehiculo-....png' de cualquiera de los formatos
+    const fullPath = path.join(UPLOADS_PATH, filename);
+    if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
     }
 };
 
@@ -98,7 +100,8 @@ router.post("/", upload.single("imagen"), async (req, res) => {
         const nuevoCoche = {
             ...cocheData,
             fecha_publicacion: cocheData.fecha_publicacion || new Date(),
-            imagen: req.file ? `/uploads/${req.file.filename}` : null,
+            // Guardar solo el nombre del archivo en la BD
+            imagen: req.file ? req.file.filename : null,
         };
 
         const result = await db.collection("coches").insertOne(nuevoCoche);
@@ -124,8 +127,10 @@ router.put("/:id", upload.single("imagen"), async (req, res) => {
             const cocheActual = await db
                 .collection("coches")
                 .findOne({ _id: new ObjectId(req.params.id) });
+            // eliminar la imagen anterior (si existe)
             eliminarImagen(cocheActual?.imagen);
-            datosActualizados.imagen = `/uploads/${req.file.filename}`;
+            // Guardar solo el nombre del archivo en la BD
+            datosActualizados.imagen = req.file.filename;
         }
 
         const result = await db
@@ -133,7 +138,7 @@ router.put("/:id", upload.single("imagen"), async (req, res) => {
             .findOneAndUpdate(
                 { _id: new ObjectId(req.params.id) },
                 { $set: datosActualizados },
-                { returnDocument: "after" }
+                { returnDocument: "after" },
             );
 
         if (!result) {

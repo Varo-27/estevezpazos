@@ -1,127 +1,319 @@
-[
-  {
-    "tipo": "coche",
-    "marca": "Volkswagen",
-    "modelo": "Golf",
-    "anio": 2020,
-    "kilometros": 48000,
-    "precio": 15800,
-    "combustible": "diésel",
-    "transmision": "manual",
-    "color": "blanco",
-    "puertas": 5,
-    "potencia_cv": 115,
-    "descripcion": "Volkswagen Golf 2020 con bajo consumo y mantenimiento reciente. ITV pasada.",
-    "ubicacion": {
-      "ciudad": "Vigo",
-      "provincia": "Pontevedra"
-    },
-    "contacto": {
-      "nombre": "María López",
-      "telefono": "+34 698 112 903",
-      "email": "maria.lopez@example.com"
-    },
-    "fecha_publicacion": { "$date": "2025-11-03T00:00:00.000Z" },
-    "estado": "disponible"
+[{
+  "_id": {
+    "$oid": "6966161fd1517ee7bee3e757"
   },
-  {
-    "tipo": "coche",
-    "marca": "Peugeot",
-    "modelo": "208",
-    "anio": 2018,
-    "kilometros": 91000,
-    "precio": 9700,
-    "combustible": "gasolina",
-    "transmision": "automático",
-    "color": "azul marino",
-    "puertas": 5,
-    "potencia_cv": 100,
-    "descripcion": "Peugeot 208 automático en excelente estado interior, ideal para ciudad.",
-    "ubicacion": {
-      "ciudad": "A Coruña",
-      "provincia": "A Coruña"
-    },
-    "contacto": {
-      "nombre": "Carlos Fernández",
-      "telefono": "+34 611 223 345",
-      "email": "carlos.fernandez@example.com"
-    },
-    "fecha_publicacion": { "$date": "2025-10-28T00:00:00.000Z" },
-    "estado": "disponible"
+  "tipo": "coche",
+  "marca": "Volkswagen",
+  "modelo": "Golf",
+  "anio": 2020,
+  "kilometros": 48000,
+  "precio": 15800,
+  "combustible": "Gasolina",
+  "transmision": "manual",
+  "color": "blanco",
+  "puertas": 5,
+  "potencia_cv": 115,
+  "descripcion": "Volkswagen Golf 2020 con bajo consumo y mantenimiento reciente. ITV pasada.",
+  "ubicacion": {
+    "ciudad": "Vigo",
+    "provincia": "Pontevedra"
   },
-  {
-    "tipo": "coche",
-    "marca": "Tesla",
-    "modelo": "Model 3",
-    "anio": 2021,
-    "kilometros": 32000,
-    "precio": 32500,
-    "combustible": "eléctrico",
-    "transmision": "automático",
-    "color": "rojo cereza",
-    "puertas": 4,
-    "potencia_cv": 283,
-    "descripcion": "Tesla Model 3 Long Range con Autopilot y mantenimiento oficial.",
-    "ubicacion": {
-      "ciudad": "Ourense",
-      "provincia": "Ourense"
-    },
-    "contacto": {
-      "nombre": "Laura González",
-      "telefono": "+34 600 889 451",
-      "email": "laura.gonzalez@example.com"
-    },
-    "fecha_publicacion": { "$date": "2025-10-20T00:00:00.000Z" },
-    "estado": "reservado"
+  "contacto": {
+    "nombre": "María López",
+    "telefono": "+34 698 112 903",
+    "email": "maria.lopez@example.com"
   },
-  {
-    "tipo": "coche",
-    "marca": "Seat",
-    "modelo": "León",
-    "anio": 2017,
-    "kilometros": 112000,
-    "precio": 8900,
-    "combustible": "diésel",
-    "transmision": "manual",
-    "color": "gris oscuro",
-    "puertas": 5,
-    "potencia_cv": 105,
-    "descripcion": "Seat León 1.6 TDI, cadena de distribución cambiada, muy cuidado.",
-    "ubicacion": {
-      "ciudad": "Lugo",
-      "provincia": "Lugo"
-    },
-    "contacto": {
-      "nombre": "Andrés Castro",
-      "telefono": "+34 622 774 982",
-      "email": "andres.castro@example.com"
-    },
-    "fecha_publicacion": { "$date": "2025-09-15T00:00:00.000Z" },
-    "estado": "vendido"
+  "fecha_publicacion": "2025-11-03",
+  "estado": "disponible",
+  "matricula": "1234 ABC",
+  "imagen": "vehiculo-1768463757285-158561983.png"
+},
+{
+  "_id": {
+    "$oid": "6966161fd1517ee7bee3e758"
   },
-  {
-    "tipo": "coche",
-    "marca": "Renault",
-    "modelo": "Clio",
-    "anio": 2016,
-    "kilometros": 125000,
-    "precio": 6800,
-    "combustible": "gasolina",
-    "transmision": "manual",
-    "color": "negro",
-    "puertas": 5,
-    "potencia_cv": 90,
-    "descripcion": "Renault Clio 1.2, consumo muy bajo, revisado y sin accidentes.",
-    "ubicacion": {
-      "ciudad": "Ferrol",
-      "provincia": "A Coruña"
-    },
-    "contacto": {
-      "nombre": "Beatriz Méndez",
-      "telefono": "+34 690 440 871",
-      "email": "beatriz.mendez@example.com"
-    },
-    "fecha_publicacion": { "$date": "2025-08-10T00:00:00.000Z" },
-    "estado": "disponible"
-  }
+  "tipo": "coche",
+  "marca": "Peugeot",
+  "modelo": "208",
+  "anio": 2018,
+  "kilometros": 91000,
+  "precio": 9700,
+  "combustible": "Diésel",
+  "transmision": "automático",
+  "color": "azul marino",
+  "puertas": 5,
+  "potencia_cv": 100,
+  "descripcion": "Peugeot 208 automático en excelente estado interior, ideal para ciudad.",
+  "ubicacion": {
+    "ciudad": "",
+    "provincia": "A Coruña"
+  },
+  "contacto": {
+    "nombre": "Carlos Fernández",
+    "telefono": "+34 611 223 345",
+    "email": "carlos.fernandez@example.com"
+  },
+  "fecha_publicacion": "2025-10-28",
+  "estado": "disponible",
+  "matricula": "2345 BCD",
+  "imagen": "vehiculo-2345123456789-208.png"
+},
+{
+  "_id": {
+    "$oid": "6966161fd1517ee7bee3e759"
+  },
+  "tipo": "coche",
+  "marca": "Tesla",
+  "modelo": "Model 3",
+  "anio": 2021,
+  "kilometros": 32000,
+  "precio": 32500,
+  "combustible": "Eléctrico",
+  "transmision": "automático",
+  "color": "rojo cereza",
+  "puertas": 4,
+  "potencia_cv": 283,
+  "descripcion": "Tesla Model 3 Long Range con Autopilot y mantenimiento oficial.",
+  "ubicacion": {
+    "ciudad": "",
+    "provincia": "Ourense"
+  },
+  "contacto": {
+    "nombre": "Laura González",
+    "telefono": "+34 600 889 451",
+    "email": "laura.gonzalez@example.com"
+  },
+  "fecha_publicacion": "2025-10-20",
+  "estado": "reservado",
+  "matricula": "8888 TSL",
+  "imagen": "vehiculo-tesla-model3.png"
+},
+{
+  "_id": {
+    "$oid": "6966161fd1517ee7bee3e75a"
+  },
+  "tipo": "coche",
+  "marca": "Seat",
+  "modelo": "León",
+  "anio": 2017,
+  "kilometros": 112000,
+  "precio": 8900,
+  "combustible": "diésel",
+  "transmision": "manual",
+  "color": "gris oscuro",
+  "puertas": 5,
+  "potencia_cv": 105,
+  "descripcion": "Seat León 1.6 TDI, cadena de distribución cambiada, muy cuidado.",
+  "ubicacion": {
+    "ciudad": "Lugo",
+    "provincia": "Lugo"
+  },
+  "contacto": {
+    "nombre": "Andrés Castro",
+    "telefono": "+34 622 774 982",
+    "email": "andres.castro@example.com"
+  },
+  "fecha_publicacion": "2025-09-15T00:00:00.000Z",
+  "estado": "vendido",
+  "matricula": "3456 EFG",
+  "imagen": "vehiculo-seat-leon.png"
+},
+{
+  "_id": {
+    "$oid": "6966161fd1517ee7bee3e75b"
+  },
+  "tipo": "coche",
+  "marca": "Renault",
+  "modelo": "Clio",
+  "anio": 2016,
+  "kilometros": 125000,
+  "precio": 6800,
+  "combustible": "Diésel",
+  "transmision": "manual",
+  "color": "negro",
+  "puertas": 5,
+  "potencia_cv": 90,
+  "descripcion": "Renault Clio 1.2, consumo muy bajo, revisado y sin accidentes.",
+  "ubicacion": {
+    "ciudad": "Ferrol",
+    "provincia": "Coruña, A"
+  },
+  "contacto": {
+    "nombre": "Beatriz Méndez",
+    "telefono": "+34 690 440 871",
+    "email": "beatriz.mendez@example.com"
+  },
+  "fecha_publicacion": "2025-08-10",
+  "estado": "disponible",
+  "matricula": "4567 HIJ",
+  "imagen": "vehiculo-renault-clio.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e760" },
+  "tipo": "furgoneta",
+  "marca": "Ford",
+  "modelo": "Transit Custom",
+  "anio": 2019,
+  "kilometros": 72000,
+  "precio": 16900,
+  "combustible": "Diésel",
+  "transmision": "manual",
+  "color": "blanco",
+  "puertas": 4,
+  "potencia_cv": 130,
+  "descripcion": "Furgoneta ideal para reparto con amplio espacio de carga y mantenimiento al día.",
+  "ubicacion": { "ciudad": "Sevilla", "provincia": "Sevilla" },
+  "contacto": { "nombre": "Pedro Martín", "telefono": "+34 600 111 222", "email": "pedro.martin@example.com" },
+  "fecha_publicacion": "2025-11-01T10:00:00.000Z",
+  "estado": "disponible",
+  "matricula": "6789 KLM",
+  "imagen": "vehiculo-ford-transit.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e761" },
+  "tipo": "moto",
+  "marca": "Yamaha",
+  "modelo": "MT-07",
+  "anio": 2022,
+  "kilometros": 8000,
+  "precio": 7200,
+  "combustible": "Gasolina",
+  "transmision": "manual",
+  "color": "negro",
+  "puertas": 0,
+  "potencia_cv": 75,
+  "descripcion": "Moto deportiva muy ágil, perfecta para ciudad y carretera.",
+  "ubicacion": { "ciudad": "Madrid", "provincia": "Madrid" },
+  "contacto": { "nombre": "Ana Ruiz", "telefono": "+34 611 222 333", "email": "ana.ruiz@example.com" },
+  "fecha_publicacion": "2025-10-20T09:30:00.000Z",
+  "estado": "disponible",
+  "matricula": "MOTO 123",
+  "imagen": "vehiculo-yamaha-mt07.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e762" },
+  "tipo": "coche",
+  "marca": "Audi",
+  "modelo": "A3",
+  "anio": 2021,
+  "kilometros": 25000,
+  "precio": 21900,
+  "combustible": "Híbrido",
+  "transmision": "automático",
+  "color": "gris",
+  "puertas": 5,
+  "potencia_cv": 150,
+  "descripcion": "Audi A3 híbrido con bajo consumo y equipamiento completo.",
+  "ubicacion": { "ciudad": "Barcelona", "provincia": "Barcelona" },
+  "contacto": { "nombre": "Marcos Soler", "telefono": "+34 622 333 444", "email": "marcos.soler@example.com" },
+  "fecha_publicacion": "2025-11-05T14:45:00.000Z",
+  "estado": "reservado",
+  "matricula": "9876 NOP",
+  "imagen": "vehiculo-audi-a3.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e763" },
+  "tipo": "coche",
+  "marca": "Honda",
+  "modelo": "Civic",
+  "anio": 2015,
+  "kilometros": 140000,
+  "precio": 7400,
+  "combustible": "Gasolina",
+  "transmision": "manual",
+  "color": "azul",
+  "puertas": 4,
+  "potencia_cv": 140,
+  "descripcion": "Honda Civic en buen estado, ITV reciente y sin golpes.",
+  "ubicacion": { "ciudad": "Valencia", "provincia": "Valencia" },
+  "contacto": { "nombre": "Lucía Pérez", "telefono": "+34 633 444 555", "email": "lucia.perez@example.com" },
+  "fecha_publicacion": "2025-09-12T08:00:00.000Z",
+  "estado": "disponible",
+  "matricula": "1122 QRS",
+  "imagen": "vehiculo-honda-civic.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e764" },
+  "tipo": "furgoneta",
+  "marca": "Renault",
+  "modelo": "Kangoo",
+  "anio": 2014,
+  "kilometros": 185000,
+  "precio": 5200,
+  "combustible": "GLP",
+  "transmision": "manual",
+  "color": "amarillo",
+  "puertas": 4,
+  "potencia_cv": 95,
+  "descripcion": "Kangoo económica con kit GLP instalado, ideal para trabajo ligero.",
+  "ubicacion": { "ciudad": "Zaragoza", "provincia": "Zaragoza" },
+  "contacto": { "nombre": "Ramón Gil", "telefono": "+34 644 555 666", "email": "ramon.gil@example.com" },
+  "fecha_publicacion": "2025-08-01T12:00:00.000Z",
+  "estado": "disponible",
+  "matricula": "7788 TUV",
+  "imagen": "vehiculo-renault-kangoo.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e765" },
+  "tipo": "coche",
+  "marca": "BMW",
+  "modelo": "320d",
+  "anio": 2016,
+  "kilometros": 98000,
+  "precio": 17900,
+  "combustible": "Diésel",
+  "transmision": "automático",
+  "color": "negro",
+  "puertas": 4,
+  "potencia_cv": 190,
+  "descripcion": "BMW 320d con paquete sport y buen historial de mantenimiento.",
+  "ubicacion": { "ciudad": "Málaga", "provincia": "Málaga" },
+  "contacto": { "nombre": "Sergio Ramos", "telefono": "+34 655 666 777", "email": "sergio.ramos@example.com" },
+  "fecha_publicacion": "2025-11-10T16:20:00.000Z",
+  "estado": "disponible",
+  "matricula": "3344 VWX",
+  "imagen": "vehiculo-bmw-320d.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e766" },
+  "tipo": "moto",
+  "marca": "Kawasaki",
+  "modelo": "Ninja 400",
+  "anio": 2020,
+  "kilometros": 12000,
+  "precio": 6200,
+  "combustible": "Gasolina",
+  "transmision": "manual",
+  "color": "verde",
+  "puertas": 0,
+  "potencia_cv": 48,
+  "descripcion": "Kawasaki Ninja 400 excelente estado, revisiones al día.",
+  "ubicacion": { "ciudad": "Santander", "provincia": "Cantabria" },
+  "contacto": { "nombre": "Oscar Lobo", "telefono": "+34 666 777 888", "email": "oscar.lobo@example.com" },
+  "fecha_publicacion": "2025-10-05T11:11:00.000Z",
+  "estado": "disponible",
+  "matricula": "MOTO 456",
+  "imagen": "vehiculo-kawasaki-ninja400.png"
+},
+{
+  "_id": { "$oid": "6966161fd1517ee7bee3e767" },
+  "tipo": "coche",
+  "marca": "Citroën",
+  "modelo": "C4 Cactus",
+  "anio": 2013,
+  "kilometros": 142000,
+  "precio": 4900,
+  "combustible": "Gasolina",
+  "transmision": "manual",
+  "color": "beige",
+  "puertas": 4,
+  "potencia_cv": 110,
+  "descripcion": "C4 Cactus con buen consumo y aspecto muy cuidado internamente.",
+  "ubicacion": { "ciudad": "Salamanca", "provincia": "Salamanca" },
+  "contacto": { "nombre": "Elena Moral", "telefono": "+34 677 888 999", "email": "elena.moral@example.com" },
+  "fecha_publicacion": "2025-07-22T09:00:00.000Z",
+  "estado": "disponible",
+  "matricula": "5566 YZA",
+  "imagen": "vehiculo-citroen-c4cactus.png"
+}
 ]
