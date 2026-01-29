@@ -3,7 +3,7 @@
     <div class="container-fluid d-flex align-items-center position-relative">
 
       <div class="d-flex align-items-center flex-shrink-0">
-        <a class="navbar-brand me-2" href="#">CarTeis</a>
+        <a class="navbar-brand me-2" href="/">CarTeis</a>
         <button class="navbar-toggler d-lg-none" type="button" @click="toggleMenu" aria-controls="navbarNav"
           :aria-expanded="menuAbierto" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -49,18 +49,27 @@
             </router-link>
           </li>
           <form class="d-flex pb-3 ps-0 pb-lg-0 form-control-sm" role="search" @submit.prevent="buscar">
-            <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar"
+            <input class="form-control w-50 me-2" type="search" placeholder="Buscar..." aria-label="Buscar"
               v-model="query" />
             <button class="btn btn-light" type="submit"><i class="bi bi-search"></i></button>
           </form>
         </ul>
       </div>
 
+      <!-- Cesta -->
+      <div>
+        <router-link to="/cesta" class="btn btn-primary position-relative ms-3 me-2" title="Cesta">
+          <i class="bi bi-cart3 fs-4"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+        </router-link>
+      </div>
+
+      <!-- Usuario -->
       <div class="dropdown" ref="dropdownRef">
         <button class="btn btn-primary dropdown-toggle" type="button" @click="toggleDropdown">
           <i class="bi bi-person fs-2"></i>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" :class="{ show: dropdownAbierto }">
+        <ul class="dropdown-menu dropdown-menu" :class="{ show: dropdownAbierto }">
           <li v-if="!isLogueado">
             <router-link class="dropdown-item" to="/login" @click="cerrarTodo">Acceso</router-link>
           </li>
@@ -75,7 +84,6 @@
           </li>
         </ul>
       </div>
-
     </div>
   </nav>
 </template>
@@ -234,7 +242,6 @@ function buscar() {
   }
 }
 
-/* Mantener color y la variante usada (.underline-3-inner) */
 .nav-link {
   color: rgba(255, 255, 255, 0.95);
 }
@@ -245,7 +252,7 @@ function buscar() {
   background-repeat: no-repeat;
   background-size: 0% 2px;
   background-position: center 100%;
-  transition: background-size .28s ease;
+  transition: background-size .25s ease;
   padding: 0;
 }
 

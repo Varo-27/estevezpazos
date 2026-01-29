@@ -44,8 +44,7 @@ var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
   margin: 0 auto;
   /* centra horizontalmente */
   display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
+  flex: 1 auto;
 }
 
 .layout-root {

@@ -68,7 +68,7 @@
                             <li><i class="bi bi-speedometer2 me-2"></i><strong>Km:</strong> {{
                                 coche.kilometros?.toLocaleString() }}</li>
                             <li><i class="bi bi-fuel-pump me-2"></i><strong>Combustible:</strong> {{ coche.combustible
-                                }}</li>
+                            }}</li>
                             <li><i class="bi bi-gear me-2"></i><strong>Transmisión:</strong> {{ coche.transmision }}
                             </li>
                             <li><i class="bi bi-lightning me-2"></i><strong>Potencia:</strong> {{ coche.potencia_cv }}
@@ -85,10 +85,15 @@
                             <small class="text-muted">
                                 <i class="bi bi-clock me-1"></i>{{ formatearFechaDisplay(coche.fecha_publicacion) }}
                             </small>
-                            <button class="btn btn-primary btn-sm" @click="verDetalles(coche)"
+                            <div class="d-flex flex-column">
+                            <button class="btn badge btn-primary btn-sm" @click="verDetalles(coche)"
                                 :disabled="coche.estado === 'vendido'">
                                 <i class="bi bi-eye me-1"></i>Ver más
                             </button>
+                            <button class="btn badge btn-sm btn-success " @click.stop="agregarACesta(car)">
+                                <i class="bi bi-cart3 me-1"></i> Añadir Cesta
+                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,7 +136,7 @@
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <span>Kilómetros</span><strong>{{ cocheSeleccionado.kilometros?.toLocaleString()
-                                            }} km</strong>
+                                        }} km</strong>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between">
                                         <span>Combustible</span><strong>{{ cocheSeleccionado.combustible }}</strong>
@@ -190,8 +195,11 @@ import { ref, computed, onMounted } from 'vue'
 import { getCoches } from '@/api/coches.js'
 import { Modal } from 'bootstrap'
 import { useValidaciones } from '@/composables/useValidaciones.js'
+import { useCestaStore } from '@/store/cesta.js'
+
 
 const { formatearFechaDisplay } = useValidaciones()
+const cestaStore = useCestaStore
 
 const coches = ref([])
 const cocheSeleccionado = ref(null)

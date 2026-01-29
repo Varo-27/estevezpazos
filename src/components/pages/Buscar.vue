@@ -8,7 +8,7 @@
             <h6 class="fw-bold">Clientes</h6>
             <ul>
                 <li v-for="c in clientes" :key="c.id">
-                    {{ c.nombre }}
+                    <span v-html="resaltar(c.nombre, termino)"></span>
                     <span v-html="resaltar(c.apellidos, termino)"></span>
                     <small class="text-muted" v-html="resaltar(c.email, termino)"></small>
                 </li>
@@ -93,3 +93,8 @@ function resaltar(texto, termino) {
     return String(texto).replace(regex, "<mark>$1</mark>")
 }
 </script>
+<style>
+mark {
+    padding: 0 !important;
+}
+</style>

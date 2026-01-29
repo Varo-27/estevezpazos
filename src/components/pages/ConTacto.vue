@@ -1,7 +1,7 @@
 <template>
-    <div class="container py-5">
+    <div class="my-5">
         <div class="row justify-content-center">
-            <div class="col-md-10 col-lg-8">
+            <div style="width: 400px;">
                 <div class="card shadow">
                     <div class="card-body p-4">
                         <h2 class="card-title text-center mb-4">Contacto</h2>
@@ -40,17 +40,15 @@
         </div>
 
         <div class="row justify-content-center mt-5">
-            <div class="col-md-10 col-lg-8">
-                <div class="card shadow">
-                    <div class="card-body p-0">
-                        <h3 class="card-title text-center py-3 mb-0">Nuestra Ubicación</h3>
-                        <div class="ratio ratio-16x9">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2953.271190705747!2d-8.6900709!3d42.2513809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2f62e588cfce69%3A0x378485bfa6edd1be!2sIES%20de%20Teis!5e0!3m2!1ses!2ses!4v1765527695611!5m2!1ses!2ses"
-                                style="border:0;" allowfullscreen="" loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
-                        </div>
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    <h3 class="card-title text-center py-3 mb-0">Nuestra Ubicación</h3>
+                    <div class="ratio ratio-16x9">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2953.271190705747!2d-8.6900709!3d42.2513809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2f62e588cfce69%3A0x378485bfa6edd1be!2sIES%20de%20Teis!5e0!3m2!1ses!2ses!4v1765527695611!5m2!1ses!2ses"
+                            style="border:0;" allowfullscreen loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
                     </div>
                 </div>
             </div>
