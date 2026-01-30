@@ -4,16 +4,17 @@ import { createRouter, createWebHistory } from "vue-router";
 import NotFound from "@/components/common/NotFound.vue";
 
 // Componentes de páginas
-import PaginaInicio from "@/components/pages/PaginaInicio.vue";
-import GestionClientes from "@/components/pages/GestionClientes.vue";
-import NoTicias from "@/components/pages/NoTicias.vue";
 import AvisoLegal from "@/components/pages/AvisoLegal.vue";
-import PoliticaPrivacidad from "@/components/pages/PoliticaPrivacidad.vue";
-import ModeLos from "@/components/pages/ModeLos.vue";
-import CitasTaller from "@/components/pages/CitasTaller.vue";
-import Ventas from "@/components/pages/Ventas.vue";
-import ConTacto from "@/components/pages/ConTacto.vue";
 import Buscar from "@/components/pages/Buscar.vue";
+import Cesta from "@/components/pages/Cesta.vue";
+import CitasTaller from "@/components/pages/CitasTaller.vue";
+import ConTacto from "@/components/pages/ConTacto.vue";
+import GestionClientes from "@/components/pages/GestionClientes.vue";
+import ModeLos from "@/components/pages/ModeLos.vue";
+import NoTicias from "@/components/pages/NoTicias.vue";
+import PoliticaPrivacidad from "@/components/pages/PoliticaPrivacidad.vue";
+import PaginaInicio from "@/components/pages/PaginaInicio.vue";
+import Ventas from "@/components/pages/Ventas.vue";
 
 // Componentes de autenticación
 import TablaLogin from "@/components/auth/TablaLogin.vue";
@@ -78,6 +79,11 @@ const routes = [
         path: "/buscar",
         name: "Buscar",
         component: Buscar,
+    },
+    {
+        path: "/cesta",
+        name: "Cesta",
+        component: Cesta,
     },
     {
         path: "/:pathMatch(.*)*",

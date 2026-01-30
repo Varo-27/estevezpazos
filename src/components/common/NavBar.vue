@@ -33,12 +33,12 @@
               <span class="nav-underline">Ventas</span>
             </router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/modelos" @click="cerrarMenu">
               <span class="nav-underline">Modelos</span>
             </router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/taller" @click="cerrarMenu">
               <span class="nav-underline">Taller</span>
             </router-link>
@@ -60,7 +60,10 @@
       <div>
         <router-link to="/cesta" class="btn btn-primary position-relative ms-3 me-2" title="Cesta">
           <i class="bi bi-cart3 fs-4"></i>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            v-if="cesta.totalItems > 0">
+            {{ cesta.totalItems }}
+          </span>
         </router-link>
       </div>
 
@@ -92,9 +95,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth.js'
 import { useRouter } from 'vue-router'
+import { useCestaStore } from '@/store/cesta'
 
-
-const { isLogueado, userName, initAuth, logout } = useAuth()
+const { isLogueado, isAdmin, userName, initAuth, logout } = useAuth()
+const cesta  = useCestaStore();
 
 const navbarRef = ref(null)
 const navbarCollapse = ref(null)
