@@ -20,7 +20,8 @@
         "jsonwebtoken": "^9.0.3",
         "mongodb": "^7.0.0",
         "multer": "^2.0.2",
-        "resend": "^3.0.0"
+        "resend": "^3.0.0",
+        "stripe": "^20.3.0"
     },
     "devDependencies": {
         "nodemon": "^3.0.1"

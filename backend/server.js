@@ -47,6 +47,10 @@ import noticiasRoutes from "./routes/noticiasRoutes.js";
 import tallerRoutes from "./routes/tallerRoutes.js";
 import contactoRoutes from "./routes/contactoRoutes.js";
 import cochesRoutes from "./routes/cochesRoutes.js";
+import Stripe from "stripe";
+
+// Configuración de Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Registrar rutas
 app.use("/api/auth", authRoutes);
@@ -66,6 +70,41 @@ app.get("/api/provmuni", (req, res) => {
     } catch (error) {
         console.error("Error al cargar provmuni:", error);
         res.status(500).json({ error: "Error al cargar datos de provincias" });
+    }
+});
+
+// Ruta para crear sesión de checkout con Stripe
+app.post("/crear-checkout-session", async (req, res) => {
+    try {
+        const { items } = req.body;
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ error: "Items requeridos" });
+        }
+
+        const lineItems = items.map((item) => ({
+            price_data: {
+                currency: "eur",
+                product_data: {
+                    name: item.nombre,
+                },
+                unit_amount: Math.round(item.precio * 100), // convertir a céntimos
+            },
+            quantity: item.cantidad,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: lineItems,
+            mode: "payment",
+            success_url: "http://localhost:5173/success",
+            cancel_url: "http://localhost:5173/cancel",
+        });
+
+        res.json({ url: session.url });
+    } catch (error) {
+        console.error("Error creating checkout session:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 

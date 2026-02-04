@@ -15,6 +15,8 @@ import NoTicias from "@/components/pages/NoTicias.vue";
 import PoliticaPrivacidad from "@/components/pages/PoliticaPrivacidad.vue";
 import PaginaInicio from "@/components/pages/PaginaInicio.vue";
 import Ventas from "@/components/pages/Ventas.vue";
+import Success from "@/components/pages/Success.vue";
+import Cancel from "@/components/pages/Cancel.vue";
 
 // Componentes de autenticación
 import TablaLogin from "@/components/auth/TablaLogin.vue";
@@ -84,6 +86,16 @@ const routes = [
         path: "/cesta",
         name: "Cesta",
         component: Cesta,
+    },
+    {
+        path: "/success",
+        name: "Success",
+        component: Success,
+    },
+    {
+        path: "/cancel",
+        name: "Cancel",
+        component: Cancel,
     },
     {
         path: "/:pathMatch(.*)*",
