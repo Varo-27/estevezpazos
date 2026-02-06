@@ -43,12 +43,16 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCestaStore } from '@/store/cesta.js'
 import axios from 'axios'
+import { useAuth } from '@/composables/useAuth.js'
 
 import Swal from 'sweetalert2'
 
 const cesta = useCestaStore()
+const { isLogueado } = useAuth()
+const router = useRouter()
 
 // Funciones de la cesta
 const incrementar = (id) => cesta.incrementarCantidad(id)
@@ -80,6 +84,12 @@ const iniciarPago = async () => {
         mostrarAlerta('Aviso', 'La cesta está vacía', 'warning')
         return
     }
+
+    if (!isLogueado.value) {
+        router.push({ name: 'TablaLogin' })
+        return
+    }
+
     // Guardar cesta en localStorage
     localStorage.setItem('checkout_items', JSON.stringify(cesta.items))
     localStorage.setItem('checkout_total', cesta.totalPrecio)

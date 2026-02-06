@@ -42,15 +42,20 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useCestaStore } from '@/store/cesta.js'
+import { useAuth } from '@/composables/useAuth.js'
+import { addFactura } from '@/api/facturas.js'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import logo from '@/assets/logo.svg'
+import Swal from 'sweetalert2'
 
 const cestaStore = useCestaStore()
+const { userName } = useAuth()
 const cartItems = ref([])
 const totalPrice = ref(0)
+const numeroFactura = ref('')
 
-onMounted(() => {
+onMounted(async () => {
     // Recuperar datos de la compra desde localStorage antes de limpiar
     const savedItems = localStorage.getItem('checkout_items')
     const savedTotal = localStorage.getItem('checkout_total')
@@ -62,6 +67,12 @@ onMounted(() => {
         totalPrice.value = parseFloat(savedTotal)
     }
 
+    // Generar número de factura
+    numeroFactura.value = `F-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`
+
+    // Guardar factura en MongoDB
+    await guardarFacturaEnDB()
+
     // Limpiar la cesta después del pago exitoso
     cestaStore.clearCesta()
 })
@@ -71,6 +82,35 @@ onBeforeUnmount(() => {
     localStorage.removeItem('checkout_items')
     localStorage.removeItem('checkout_total')
 })
+
+const guardarFacturaEnDB = async () => {
+    try {
+        if (cartItems.value.length === 0) {
+            console.warn('No hay productos para guardar en la factura')
+            return
+        }
+
+        const factura = {
+            numeroFactura: numeroFactura.value,
+            nombreUsuario: userName.value || 'Usuario Invitado',
+            productos: cartItems.value.map((item) => ({
+                id: item.id,
+                nombre: item.nombre,
+                precio: item.precio,
+                cantidad: item.cantidad,
+                total: item.precio * item.cantidad,
+            })),
+            total: totalPrice.value,
+            fecha: new Date(),
+        }
+
+        const response = await addFactura(factura)
+        console.log('✅ Factura guardada en MongoDB:', response)
+    } catch (error) {
+        console.error('❌ Error al guardar factura en MongoDB:', error)
+        // No mostramos error al usuario para no afectar la experiencia
+    }
+}
 
 const generarFacturaPDF = () => {
     if (cartItems.value.length === 0) {
@@ -114,7 +154,7 @@ const generarFacturaPDF = () => {
         month: 'long',
         day: 'numeric'
     })
-    const numFactura = `F-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`
+    const numFactura = numeroFactura.value
 
     doc.text(`Fecha: ${fecha}`, 14, 50)
     doc.text(`Factura Nº: ${numFactura}`, 14, 55)

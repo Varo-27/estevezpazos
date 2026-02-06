@@ -65,7 +65,11 @@ const iniciarSesion = async () => {
 
     // El success se muestra en useAuth, aquí solo redirigimos
     setTimeout(() => {
-      router.push({ name: "Inicio" });
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.push({ name: "Inicio" });
+      }
     }, 1500);
   } catch (error) {
     console.error("Error en login:", error);

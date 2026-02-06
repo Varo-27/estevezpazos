@@ -47,6 +47,7 @@ import noticiasRoutes from "./routes/noticiasRoutes.js";
 import tallerRoutes from "./routes/tallerRoutes.js";
 import contactoRoutes from "./routes/contactoRoutes.js";
 import cochesRoutes from "./routes/cochesRoutes.js";
+import facturasRoutes from "./routes/facturasRoutes.js";
 import Stripe from "stripe";
 
 // Configuración de Stripe
@@ -59,6 +60,7 @@ app.use("/api/noticias", noticiasRoutes);
 app.use("/api/taller", tallerRoutes);
 app.use("/api/contacto", contactoRoutes);
 app.use("/api/coches", cochesRoutes);
+app.use("/api/facturas", facturasRoutes);
 
 // Endpoint para datos estáticos de provincias/municipios
 app.get("/api/provmuni", (req, res) => {
