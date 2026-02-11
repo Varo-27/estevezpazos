@@ -46,7 +46,7 @@ import { useAuth } from '@/composables/useAuth.js'
 import { addFactura } from '@/api/facturas.js'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import logo from '@/assets/logo.svg'
+import logo from '@/assets/logo.png'
 import Swal from 'sweetalert2'
 
 const cestaStore = useCestaStore()
@@ -112,7 +112,7 @@ const guardarFacturaEnDB = async () => {
     }
 }
 
-const generarFacturaPDF = () => {
+const generarFacturaPDF = async () => {
     if (cartItems.value.length === 0) {
         console.error('No hay productos en el carrito. No se puede generar la factura.')
         alert('No hay productos para generar la factura. Los datos pueden haberse perdido.')
@@ -121,16 +121,68 @@ const generarFacturaPDF = () => {
 
     const doc = new jsPDF()
 
-    // Logo/Marca en la parte superior izquierda (texto en lugar de imagen)
-    doc.setFontSize(20)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(13, 110, 253) // Color azul primary
-    doc.text('CarTeis', 14, 20)
+    // Cargar y dibujar logo en la parte superior izquierda respetando proporciones
+    try {
+        await new Promise((resolve) => {
+            const img = new Image()
+            img.src = logo
+            img.onload = () => {
+                const maxW = 36 // ancho máximo en unidades del PDF
+                const maxH = 20 // alto máximo
+                const iw = img.naturalWidth || img.width
+                const ih = img.naturalHeight || img.height
 
-    // Línea decorativa debajo del logo
-    doc.setDrawColor(13, 110, 253)
-    doc.setLineWidth(0.5)
-    doc.line(14, 23, 50, 23)
+                // Calcular tamaño manteniendo proporciones
+                let drawW = maxW
+                let drawH = (ih / iw) * drawW
+                if (drawH > maxH) {
+                    drawH = maxH
+                    drawW = (iw / ih) * drawH
+                }
+
+                const x = 14
+                const y = 8
+                try {
+                    doc.addImage(img, 'PNG', x, y, drawW, drawH)
+                } catch (e) {
+                    // Si no se puede añadir la imagen, dibujar texto como fallback
+                    doc.setFontSize(20)
+                    doc.setFont('helvetica', 'bold')
+                    doc.setTextColor(13, 110, 253)
+                    doc.text('CarTeis', 14, 20)
+                }
+
+                // Línea decorativa ubicada justo debajo del logo (dependiendo de su altura)
+                doc.setDrawColor(13, 110, 253)
+                doc.setLineWidth(0.5)
+                const lineY = y + drawH + 4
+                doc.line(14, lineY, 50, lineY)
+
+                resolve()
+            }
+
+            img.onerror = () => {
+                // Fallback: texto y línea si la imagen no carga
+                doc.setFontSize(20)
+                doc.setFont('helvetica', 'bold')
+                doc.setTextColor(13, 110, 253)
+                doc.text('CarTeis', 14, 20)
+                doc.setDrawColor(13, 110, 253)
+                doc.setLineWidth(0.5)
+                doc.line(14, 23, 50, 23)
+                resolve()
+            }
+        })
+    } catch (err) {
+        console.warn('Error cargando logo:', err)
+        doc.setFontSize(20)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(13, 110, 253)
+        doc.text('CarTeis', 14, 20)
+        doc.setDrawColor(13, 110, 253)
+        doc.setLineWidth(0.5)
+        doc.line(14, 23, 50, 23)
+    }
 
     // Título de la factura
     doc.setFontSize(18)
@@ -215,13 +267,8 @@ const generarFacturaPDF = () => {
     const pageHeight = doc.internal.pageSize.height
     doc.text('Gracias por su compra', 105, pageHeight - 20, { align: 'center' })
 
-    // Agregar logo en el pie de página
-    try {
-        doc.addImage(logo, 'SVG', 95, pageHeight - 18, 20, 20)
-    } catch (error) {
-        console.warn('No se pudo cargar el logo:', error)
-        doc.text('CarTeis - Su concesionario de confianza', 105, pageHeight - 15, { align: 'center' })
-    }
+    // Pie de página (texto alternativo, sin logo en el pie)
+    doc.text('CarTeis - Su concesionario de confianza', 105, pageHeight - 15, { align: 'center' })
 
     // Guardar el archivo PDF
     const nombreArchivo = `factura_CarTeis_${numFactura.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`

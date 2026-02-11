@@ -1,9 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const MONGO_URI =
-    process.env.MONGO_URI ||
-    "mongodb://admin:admin@localhost:27017/admin?authSource=admin";
-const DB_NAME = "admin";
+const DB_NAME = "bbdd";
 
 let client = null;
 let db = null;
@@ -12,10 +9,13 @@ export const conectarDB = async () => {
     if (db) return db;
 
     try {
+        // Leer la URI aquí (lazy) para que process.env ya esté cargado por server.js
+        const MONGO_URI = process.env.MONGO_URI;
+
         client = new MongoClient(MONGO_URI);
         await client.connect();
         db = client.db(DB_NAME);
-        console.log("Conectado a MongoDB");
+        console.log("✅ Conectado a MongoDB");
         return db;
     } catch (error) {
         console.error("Error al conectar a MongoDB:", error);

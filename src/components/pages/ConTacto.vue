@@ -59,6 +59,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useNotifications } from '@/composables/useNotifications';
+import { enviarMensajeContacto } from '@/api/contacto.js';
 
 const formData = reactive({
     nombre: '',
@@ -76,27 +77,14 @@ const handleSubmit = async () => {
     enviando.value = true;
 
     try {
-        const response = await fetch('http://localhost:5000/api/contacto/enviar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(formData)
-        });
+        await enviarMensajeContacto(formData);
+        await success('Mensaje enviado con éxito', 'Te contactaremos pronto');
 
-        const data = await response.json();
-
-        if (response.ok) {
-            await success('Mensaje enviado con éxito', 'Te contactaremos pronto');
-            // Limpiar formulario
-            formData.nombre = '';
-            formData.correo = '';
-            formData.asunto = '';
-            formData.mensaje = '';
-        } else {
-            error('Error al enviar', 'No se pudo enviar el mensaje');
-        }
+        // Limpiar formulario
+        formData.nombre = '';
+        formData.correo = '';
+        formData.asunto = '';
+        formData.mensaje = '';
     } catch (err) {
         console.error('Error enviando mensaje:', err);
         error('Error de conexión', 'No se pudo conectar con el servidor');

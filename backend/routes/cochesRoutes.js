@@ -64,7 +64,7 @@ const parseCocheData = (body) => {
 router.get("/", async (req, res) => {
     try {
         const db = getDB();
-        const coches = await db.collection("coches").find({}).toArray();
+        const coches = await db.collection("articulos").find({}).toArray();
         res.json(coches);
     } catch (error) {
         console.error("Error al obtener coches:", error);
@@ -77,7 +77,7 @@ router.get("/:id", async (req, res) => {
     try {
         const db = getDB();
         const coche = await db
-            .collection("coches")
+            .collection("articulos")
             .findOne({ _id: new ObjectId(req.params.id) });
 
         if (!coche) {
@@ -104,9 +104,9 @@ router.post("/", upload.single("imagen"), async (req, res) => {
             imagen: req.file ? req.file.filename : null,
         };
 
-        const result = await db.collection("coches").insertOne(nuevoCoche);
+        const result = await db.collection("articulos").insertOne(nuevoCoche);
         const cocheCreado = await db
-            .collection("coches")
+            .collection("articulos")
             .findOne({ _id: result.insertedId });
 
         res.status(201).json(cocheCreado);
@@ -125,7 +125,7 @@ router.put("/:id", upload.single("imagen"), async (req, res) => {
 
         if (req.file) {
             const cocheActual = await db
-                .collection("coches")
+                .collection("articulos")
                 .findOne({ _id: new ObjectId(req.params.id) });
             // eliminar la imagen anterior (si existe)
             eliminarImagen(cocheActual?.imagen);
@@ -134,7 +134,7 @@ router.put("/:id", upload.single("imagen"), async (req, res) => {
         }
 
         const result = await db
-            .collection("coches")
+            .collection("articulos")
             .findOneAndUpdate(
                 { _id: new ObjectId(req.params.id) },
                 { $set: datosActualizados },
@@ -157,13 +157,13 @@ router.delete("/:id", async (req, res) => {
     try {
         const db = getDB();
         const coche = await db
-            .collection("coches")
+            .collection("articulos")
             .findOne({ _id: new ObjectId(req.params.id) });
 
         eliminarImagen(coche?.imagen);
 
         const result = await db
-            .collection("coches")
+            .collection("articulos")
             .deleteOne({ _id: new ObjectId(req.params.id) });
 
         if (result.deletedCount === 0) {
