@@ -187,6 +187,116 @@
     <!-- TABLA DE VEHÍCULOS -->
     <div class="table-responsive mt-4">
       <h5 class="text-center bg-primary-subtle py-1 mb-3"><i class="bi bi-list-ul me-2"></i>Listado de Vehículos</h5>
+
+      <!-- FILTROS DINÁMICOS -->
+      <div class="row g-2 mb-3 align-items-end">
+        <div class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Filtrar por:</label>
+          <select v-model="filtro.campo" class="form-select form-select-sm rounded-0"
+            @change="filtro.valor = ''; filtro.operador = ''">
+            <option value="">Sin filtro</option>
+            <option value="tipo">Tipo</option>
+            <option value="marca">Marca</option>
+            <option value="modelo">Modelo</option>
+            <option value="anio">Año</option>
+            <option value="kilometros">Kilómetros</option>
+            <option value="precio">Precio</option>
+            <option value="combustible">Combustible</option>
+            <option value="estado">Estado</option>
+            <option value="fecha_publicacion">Fecha publicación</option>
+          </select>
+        </div>
+
+        <!-- Operador para campos numéricos -->
+        <div v-if="campoTipo === 'numero'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Condición:</label>
+          <select v-model="filtro.operador" class="form-select form-select-sm rounded-0">
+            <option value="">Seleccione</option>
+            <option value="mayor">Mayor que</option>
+            <option value="menor">Menor que</option>
+            <option value="igual">Igual a</option>
+          </select>
+        </div>
+
+        <!-- Operador para campos fecha -->
+        <div v-if="campoTipo === 'fecha'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Condición:</label>
+          <select v-model="filtro.operador" class="form-select form-select-sm rounded-0">
+            <option value="">Seleccione</option>
+            <option value="despues">Después de</option>
+            <option value="antes">Antes de</option>
+          </select>
+        </div>
+
+        <!-- INPUT: según tipo de campo -->
+
+        <!-- Select de tipos -->
+        <div v-if="filtro.campo === 'tipo'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Tipo:</label>
+          <select v-model="filtro.valor" class="form-select form-select-sm rounded-0">
+            <option value="">Todos</option>
+            <option v-for="t in tiposUnicos" :key="t" :value="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <!-- Select de marcas -->
+        <div v-if="filtro.campo === 'marca'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Marca:</label>
+          <select v-model="filtro.valor" class="form-select form-select-sm rounded-0">
+            <option value="">Todas</option>
+            <option v-for="m in marcasUnicas" :key="m" :value="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <!-- Select de combustible -->
+        <div v-if="filtro.campo === 'combustible'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Combustible:</label>
+          <select v-model="filtro.valor" class="form-select form-select-sm rounded-0">
+            <option value="">Todos</option>
+            <option v-for="c in combustiblesUnicos" :key="c" :value="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Select de estado -->
+        <div v-if="filtro.campo === 'estado'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Estado:</label>
+          <select v-model="filtro.valor" class="form-select form-select-sm rounded-0">
+            <option value="">Todos</option>
+            <option value="disponible">Disponible</option>
+            <option value="reservado">Reservado</option>
+            <option value="vendido">Vendido</option>
+          </select>
+        </div>
+
+        <!-- Input texto (modelo) -->
+        <div v-if="filtro.campo === 'modelo'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Modelo:</label>
+          <input v-model="filtro.valor" type="text" class="form-control form-control-sm rounded-0"
+            placeholder="Buscar modelo...">
+        </div>
+
+        <!-- Input numérico -->
+        <div v-if="campoTipo === 'numero'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Valor:</label>
+          <input v-model.number="filtro.valor" type="number" class="form-control form-control-sm rounded-0"
+            placeholder="Valor">
+        </div>
+
+        <!-- Input fecha -->
+        <div v-if="campoTipo === 'fecha'" class="col-auto">
+          <label class="form-label mb-0 small fw-bold">Fecha:</label>
+          <input v-model="filtro.valor" type="date" class="form-control form-control-sm rounded-0">
+        </div>
+
+        <!-- Botón limpiar filtro -->
+        <div v-if="filtro.campo" class="col-auto">
+          <button class="btn btn-outline-secondary btn-sm rounded-0"
+            @click="filtro.campo = ''; filtro.valor = ''; filtro.operador = ''">
+            <i class="bi bi-x-circle me-1"></i>Limpiar filtro
+          </button>
+        </div>
+      </div>
+
       <table class="table table-striped table-hover table-bordered">
         <thead class="table-primary">
           <tr>
@@ -201,7 +311,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="coche in coches" :key="coche._id">
+          <tr v-for="coche in cochesFiltrados" :key="coche._id">
             <td>{{ coche.tipo }}</td>
             <td>{{ coche.marca }}</td>
             <td>{{ coche.modelo }}</td>
@@ -226,8 +336,8 @@
               </button>
             </td>
           </tr>
-          <tr v-if="coches.length === 0">
-            <td colspan="8" class="text-center text-muted">No hay vehículos registrados</td>
+          <tr v-if="cochesFiltrados.length === 0">
+            <td colspan="8" class="text-center text-muted">{{ filtro.campo ? 'No hay vehículos que coincidan con el filtro' : 'No hay vehículos registrados' }}</td>
           </tr>
         </tbody>
       </table>
@@ -239,7 +349,7 @@
 import { useNotifications } from "@/composables/useNotifications";
 import { useProvincias } from "@/composables/useProvincias";
 import { useValidaciones } from "@/composables/useValidaciones";
-import { ref, onMounted } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getCoches, addCoche, deleteCoche, updateCoche } from "@/api/coches.js"
@@ -249,6 +359,67 @@ const { provincias, municipiosFiltrados, cargarProvincias, filtrarMunicipios: fi
 const { capitalizar, mayusculas, esEmailValido, esMovilValido } = useValidaciones();
 
 const coches = ref([]);
+
+// ---------- FILTROS DINÁMICOS ----------
+const filtro = ref({ campo: '', operador: '', valor: '' })
+
+// Tipo de campo seleccionado
+const campoTipo = computed(() => {
+  const numericos = ['anio', 'kilometros', 'precio']
+  const fechas = ['fecha_publicacion']
+  if (numericos.includes(filtro.value.campo)) return 'numero'
+  if (fechas.includes(filtro.value.campo)) return 'fecha'
+  return 'select' // tipo, marca, combustible, estado, modelo
+})
+
+// Listas únicas para selects
+const tiposUnicos = computed(() =>
+  [...new Set(coches.value.map(c => c.tipo).filter(Boolean))].sort()
+)
+const marcasUnicas = computed(() =>
+  [...new Set(coches.value.map(c => c.marca).filter(Boolean))].sort()
+)
+const combustiblesUnicos = computed(() =>
+  [...new Set(coches.value.map(c => c.combustible).filter(Boolean))].sort()
+)
+
+// Computed: lista filtrada
+const cochesFiltrados = computed(() => {
+  const { campo, operador, valor } = filtro.value
+  if (!campo || valor === '' || valor === null || valor === undefined) return coches.value
+
+  return coches.value.filter(coche => {
+    const raw = coche[campo]
+
+    // Campos numéricos
+    if (campoTipo.value === 'numero') {
+      const num = Number(raw)
+      const ref = Number(valor)
+      if (isNaN(num) || isNaN(ref)) return true
+      if (operador === 'mayor') return num > ref
+      if (operador === 'menor') return num < ref
+      if (operador === 'igual') return num === ref
+      return true
+    }
+
+    // Campos fecha
+    if (campoTipo.value === 'fecha') {
+      const fechaCoche = new Date(raw)
+      const fechaFiltro = new Date(valor)
+      if (isNaN(fechaCoche) || isNaN(fechaFiltro)) return true
+      if (operador === 'despues') return fechaCoche >= fechaFiltro
+      if (operador === 'antes') return fechaCoche <= fechaFiltro
+      return true
+    }
+
+    // Campos texto / select
+    if (campo === 'modelo') {
+      return String(raw || '').toLowerCase().includes(String(valor).toLowerCase())
+    }
+    // tipo, marca, combustible, estado — comparación exacta
+    return String(raw || '').toLowerCase() === String(valor).toLowerCase()
+  })
+})
 
 const vehiculo = ref({
   tipo: "",

@@ -2,7 +2,7 @@
   <!-- contenedor padre a 80% y centrado -->
   <div class="layout-root">
     <NavBar />
-    <div id="app" class="app-container">
+    <div id="app" class="container">
       <main class="app-main overflow-auto">
         <router-view />
       </main>
@@ -39,12 +39,14 @@ var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
 <!--End of Tawk.to Script-->
 
 <style scoped>
-.app-container {
-  max-width: 80%;
-  margin: 0 auto;
-  /* centra horizontalmente */
+.container {
+  /* Usar el comportamiento nativo de Bootstrap para contenedores pero mantener layout flex
+     para que el main crezca y el footer quede pegado al fondo */
+  width: 100%;
   display: flex;
-  flex: 1 auto;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .layout-root {
@@ -55,6 +57,7 @@ var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
 
 .app-main {
   flex: 1 1 auto;
+  min-height: 0;
 }
 </style>
 

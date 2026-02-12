@@ -15,6 +15,7 @@ import NoTicias from "@/components/pages/NoTicias.vue";
 import PoliticaPrivacidad from "@/components/pages/PoliticaPrivacidad.vue";
 import PaginaInicio from "@/components/pages/PaginaInicio.vue";
 import Ventas from "@/components/pages/Ventas.vue";
+import UnArticulo from "@/components/pages/UnArticulo.vue";
 import Success from "@/components/pages/Success.vue";
 import Cancel from "@/components/pages/Cancel.vue";
 
@@ -56,6 +57,11 @@ const routes = [
         path: "/ventas",
         name: "Ventas",
         component: Ventas,
+    },
+    {
+        path: "/articulo/:id",
+        name: "UnArticulo",
+        component: UnArticulo,
     },
     {
         path: "/aviso-legal",

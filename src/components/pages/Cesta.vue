@@ -33,16 +33,31 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="codigo">Código descuento</label>
+                    <input id="codigo" class="form-control w-50" v-model="codigoDescuento"
+                        placeholder="Introduce código" />
+                </div>
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <h5>Total: {{ cesta.totalPrecio }} €</h5>
-                <button class="btn btn-success" @click="iniciarPago">Iniciar Pago</button>
+                <div>
+                    <div>Subtotal: {{ formato(precioBase) }} €</div>
+                    <div v-if="descuento > 0">Descuento: -{{ formato(descuento) }} €</div>
+                    <div v-if="gastosEnvio > 0">Gastos de envío: +{{ formato(gastosEnvio) }} €</div>
+                </div>
+                <div>
+                    <h5>Total: {{ formato(totalFinal) }} €</h5>
+                    <button class="btn btn-success" @click="iniciarPago">Iniciar Pago</button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCestaStore } from '@/store/cesta.js'
 import axios from 'axios'
@@ -60,10 +75,27 @@ const decrementar = (id) => cesta.decrementarCantidad(id)
 const removeProducto = (id) => cesta.removeProducto(id)
 
 // Estado de administrador simulado
-
 const isUsuario = ref(
     sessionStorage.getItem('isUsuario') === 'true'
 )
+
+// Descuento y gastos de envío
+const codigoDescuento = ref('')
+const precioBase = computed(() => Number(cesta.totalPrecio || 0))
+const descuento = computed(() => {
+    return codigoDescuento.value && codigoDescuento.value.trim().toUpperCase() === 'DESCUENTO'
+        ? Number((precioBase.value * 0.1).toFixed(2))
+        : 0
+})
+const gastosEnvio = computed(() => {
+    const subtotal = precioBase.value - descuento.value
+    return subtotal > 0 && subtotal < 50 ? 5 : 0
+})
+const totalFinal = computed(() => {
+    return Number((precioBase.value - descuento.value + gastosEnvio.value).toFixed(2))
+})
+
+const formato = (n) => (typeof n === 'number' ? n.toFixed(2) : n)
 
 // Mostrar alertas
 const mostrarAlerta = (titulo, texto, icono) => {
@@ -92,12 +124,12 @@ const iniciarPago = async () => {
 
     // Guardar cesta en localStorage
     localStorage.setItem('checkout_items', JSON.stringify(cesta.items))
-    localStorage.setItem('checkout_total', cesta.totalPrecio)
+    localStorage.setItem('checkout_total', totalFinal.value)
     try {
         // Crear la sesión de pago en el backend
         const response = await axios.post('http://localhost:5000/crear-checkout-session', {
             items: cesta.items,
-            amount: cesta.totalPrecio
+            amount: totalFinal.value
         })
         console.log('Respuesta de crear-checkout-session:', response.data)
         const session = response.data

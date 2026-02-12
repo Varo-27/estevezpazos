@@ -68,7 +68,8 @@
                             <li><i class="bi bi-speedometer2 me-2"></i><strong>Km:</strong> {{
                                 coche.kilometros?.toLocaleString() }}</li>
                             <li><i class="bi bi-fuel-pump me-2"></i><strong>Combustible:</strong> {{ coche.combustible
-                                }}</li>
+                            }}
+                            </li>
                             <li><i class="bi bi-gear me-2"></i><strong>Transmisión:</strong> {{ coche.transmision }}
                             </li>
                             <li><i class="bi bi-lightning me-2"></i><strong>Potencia:</strong> {{ coche.potencia_cv }}
@@ -81,18 +82,26 @@
                     </div>
 
                     <div class="card-footer bg-white border-top-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="bi bi-clock me-1"></i>{{ formatearFechaDisplay(coche.fecha_publicacion) }}
-                            </small>
-                            <div class="d-flex flex-column">
-                                <button class="btn badge btn-primary btn-sm" @click="verDetalles(coche)"
+                        <div class="row g-2">
+                            <div class="col-6 d-grid">
+                                <button class="btn btn-primary venta-btn" @click="verDetalles(coche)"
                                     :disabled="coche.estado === 'vendido'">
                                     <i class="bi bi-eye me-1"></i>Ver más
                                 </button>
-                                <button class="btn badge btn-sm btn-success " @click.stop="agregarACesta(coche)">
-                                    <i class="bi bi-cart3 me-1"></i> Añadir Cesta
+                            </div>
+                            <div class="col-6 d-grid">
+                                <button class="btn btn-info venta-btn" @click.stop="imprimirFichaVehiculo(coche)">
+                                    <i class="bi bi-printer me-1"></i>Imprimir
                                 </button>
+                            </div>
+
+                            <div class="col-12 d-grid">
+                                <button v-if="coche.estado === 'disponible'" class="btn btn-success venta-btn"
+                                    @click.stop="agregarACesta(coche)">
+                                    <i class="bi bi-cart3 me-1"></i> Añadir a la Cesta
+                                </button>
+                                <button v-else class="btn btn-secondary venta-btn disabled" aria-disabled="true">No
+                                    disponible</button>
                             </div>
                         </div>
                     </div>
@@ -107,104 +116,27 @@
             </div>
         </div>
 
-        <!-- Modal de detalles -->
-        <div class="modal fade" id="modalDetalles" tabindex="-1" ref="modalRef">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
-                            <i class="bi bi-car-front me-2"></i>{{ cocheSeleccionado?.marca }} {{
-                                cocheSeleccionado?.modelo }}
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" v-if="cocheSeleccionado">
-                        <div class="mb-3 text-center" v-if="imagenSrc(cocheSeleccionado)">
-                            <img :src="imagenSrc(cocheSeleccionado)"
-                                :alt="cocheSeleccionado.marca + ' ' + cocheSeleccionado.modelo"
-                                class="img-fluid rounded" style="max-height:300px; object-fit:cover; width:100%;">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-primary">Características</h6>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Tipo</span><strong>{{ cocheSeleccionado.tipo }}</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Año</span><strong>{{ cocheSeleccionado.anio }}</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Kilómetros</span><strong>{{ cocheSeleccionado.kilometros?.toLocaleString()
-                                            }} km</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Combustible</span><strong>{{ cocheSeleccionado.combustible }}</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Transmisión</span><strong>{{ cocheSeleccionado.transmision }}</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between">
-                                        <span>Potencia</span><strong>{{ cocheSeleccionado.potencia_cv }} CV</strong>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-primary">Contacto</h6>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <i class="bi bi-person me-2"></i>{{ cocheSeleccionado.contacto?.nombre }}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <i class="bi bi-telephone me-2"></i>{{ cocheSeleccionado.contacto?.telefono }}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <i class="bi bi-envelope me-2"></i>{{ cocheSeleccionado.contacto?.email }}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <i class="bi bi-geo-alt me-2"></i>{{ cocheSeleccionado.ubicacion?.ciudad }}, {{
-                                            cocheSeleccionado.ubicacion?.provincia }}
-                                    </li>
-                                </ul>
-                                <div class="mt-3">
-                                    <h4 class="text-success fw-bold">{{ cocheSeleccionado.precio?.toLocaleString() }} €
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <h6 class="text-primary">Descripción</h6>
-                            <p>{{ cocheSeleccionado.descripcion }}</p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <a v-if="cocheSeleccionado?.contacto?.telefono"
-                            :href="'tel:' + cocheSeleccionado.contacto.telefono" class="btn btn-success">
-                            <i class="bi bi-telephone me-1"></i>Llamar
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Detalle ahora redirige a /articulo/:id en lugar de modal -->
     </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getCoches } from '@/api/coches.js'
-import { Modal } from 'bootstrap'
+import { useRouter } from 'vue-router'
 import { useValidaciones } from '@/composables/useValidaciones.js'
 import { useCestaStore } from '@/store/cesta.js'
+import { usePdfFicha } from '@/composables/usePdfFicha.js'
+import Swal from 'sweetalert2'
 
 
 const { formatearFechaDisplay } = useValidaciones()
 const cestaStore = useCestaStore()
+const router = useRouter()
+const { imprimirFichaVehiculo } = usePdfFicha()
 
 const coches = ref([])
 const cocheSeleccionado = ref(null)
-const modalRef = ref(null)
-let modal = null
 
 // Filtros
 const filtroMarca = ref('')
@@ -223,8 +155,14 @@ const imagenSrc = (coche) => {
     const name = String(coche.imagen).trim()
     // Si ya es una URL absoluta, devolverla
     if (/^https?:\/\//i.test(name)) return name
-    // Normalizar empezando por uploads
-    const filename = name.replace(/^\/+/, '')
+
+    // Normalizar eliminando slashes al inicio
+    let filename = name.replace(/^\/+/, '')
+    // Si el campo ya incluye la carpeta 'uploads/', no la añadimos de nuevo
+    if (filename.startsWith('uploads/')) {
+        return `${API_BASE}/${filename}`
+    }
+
     return `${API_BASE}/uploads/${filename}`
 }
 
@@ -263,15 +201,22 @@ const limpiarFiltros = () => {
 }
 
 const verDetalles = (coche) => {
-    cocheSeleccionado.value = coche
-    if (!modal && modalRef.value) {
-        modal = new Modal(modalRef.value)
-    }
-    modal?.show()
+    // Redirige a la vista detalle
+    if (!coche || !coche._id) return
+    router.push({ name: 'UnArticulo', params: { id: coche._id } })
 }
 
 const agregarACesta = (vehiculo) => {
     if (!vehiculo) return
+
+    if (vehiculo.estado !== 'disponible') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Vehículo no disponible',
+            text: 'Este vehículo está reservado o vendido y no se puede añadir a la cesta.'
+        })
+        return
+    }
 
     cestaStore.addProducto({
         id: vehiculo._id,
@@ -280,6 +225,8 @@ const agregarACesta = (vehiculo) => {
         imagen: imagenSrc(vehiculo) || null,
     })
 }
+
+// usar imprimirFichaVehiculo desde composable
 </script>
 
 <style scoped>
@@ -294,5 +241,11 @@ const agregarACesta = (vehiculo) => {
 
 .card-img-top {
     border-bottom: 1px solid #dee2e6;
+}
+
+/* Botones de acción en listado: tamaño uniforme */
+.venta-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.92rem;
 }
 </style>

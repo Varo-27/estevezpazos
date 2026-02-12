@@ -44,6 +44,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useCestaStore } from '@/store/cesta.js'
 import { useAuth } from '@/composables/useAuth.js'
 import { addFactura } from '@/api/facturas.js'
+import { updateCoche } from '@/api/coches.js'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import logo from '@/assets/logo.png'
@@ -106,6 +107,19 @@ const guardarFacturaEnDB = async () => {
 
         const response = await addFactura(factura)
         console.log('✅ Factura guardada en MongoDB:', response)
+
+        // Marcar los coches comprados como vendidos en la base de datos
+        try {
+            for (const item of cartItems.value) {
+                if (item.id) {
+                    // Enviar solo el campo estado para actualizar
+                    await updateCoche(item.id, { estado: 'vendido' })
+                }
+            }
+            console.log('✅ Coches marcados como vendidos')
+        } catch (err) {
+            console.error('❌ Error marcando coches como vendidos:', err)
+        }
     } catch (error) {
         console.error('❌ Error al guardar factura en MongoDB:', error)
         // No mostramos error al usuario para no afectar la experiencia

@@ -250,6 +250,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getClientes, addCliente, deleteCliente, updateCliente, getClientePorDni } from '@/api/clientes.js'
+import { api } from '@/api/index.js'
 import bcrypt from "bcryptjs";
 import { useAuth } from '@/composables/useAuth.js'
 import { useProvincias } from '@/composables/useProvincias.js'
@@ -302,6 +303,38 @@ onMounted(async () => {
         error('Error', 'No se pudieron cargar las provincias');
     }
     await cargarClientes();
+    // Si el usuario NO es admin, cargar sus datos en el formulario
+    try {
+        if (!isAdmin.value) {
+            const resp = await api.get('/auth/verify');
+            if (resp.data && resp.data.valid && resp.data.user?.dni) {
+                const dni = resp.data.user.dni;
+                try {
+                    const cliente = await getClientePorDni(dni);
+                    if (cliente) {
+                        let fechaFormateada = cliente.fecha_alta || '';
+                        if (fechaFormateada && fechaFormateada.includes('/')) {
+                            fechaFormateada = formatearFechaInput(fechaFormateada);
+                        }
+
+                        nuevoCliente.value = { ...cliente, fecha_alta: fechaFormateada };
+                        nuevoCliente.value.lopd = cliente.lopd;
+                        nuevoCliente.value.password = '';
+                        nuevoCliente.value.password2 = '';
+                        editando.value = true;
+                        filtrarMunicipios();
+                        nuevoCliente.value.municipio = cliente.municipio;
+                        clienteEditandoId.value = cliente.id;
+                    }
+                } catch (err) {
+                    console.error('Error al obtener cliente por DNI:', err);
+                }
+            }
+        }
+    } catch (err) {
+        // Silencioso si no hay token o falla la verificación
+        console.error('Verificación de usuario fallida:', err);
+    }
     resetPagina();
 });
 
