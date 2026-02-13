@@ -32,6 +32,7 @@ router.post("/", async (req, res) => {
             titulo: req.body.titulo,
             contenido: req.body.contenido,
             fecha: req.body.fecha || getCurrentDate(),
+            likes: 0
         };
 
         const db = await readDB();
@@ -42,6 +43,30 @@ router.post("/", async (req, res) => {
         res.status(201).json(nuevaNoticia);
     } catch (error) {
         console.error("Error al crear noticia:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = await readDB();
+
+        if (!db.noticias) {
+            return res.status(404).json({ error: "No hay noticias" });
+        }
+
+        const index = db.noticias.findIndex((n) => n.id === id);
+        if (index === -1) {
+            return res.status(404).json({ error: "Noticia no encontrada" });
+        }
+        
+        db.noticias[index] = { ...db.noticias[index], ...req.body };
+        await writeDB(db);
+
+        res.json({ message: "Noticia eliminada correctamente" });
+    } catch (error) {
+        console.error("Error al actualizar noticia:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });

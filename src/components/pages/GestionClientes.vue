@@ -180,11 +180,15 @@
 
             <!-- Botones -->
             <div class="col-12 position-relative d-flex justify-content-center align-items-center">
+
                 <!-- Botón centrado -->
                 <button type="submit" class="btn btn-primary">
                     {{ editando ? "Modificar Cliente" : "Guardar Cliente" }}
                 </button>
-
+                <button type="button" @click="imprimirPDF"
+                    class="btn btn-secondary rounded-0 border shadow-none px-4 py-2 ms-2"><i
+                        class="bi bi-printer"></i>Imprimir
+                </button>
                 <!-- Switch posicionado a la derecha -->
                 <div class="form-check form-switch position-absolute end-0">
                     <input id="historico" type="checkbox" v-model="mostrarHistorico" class="form-check-input"
@@ -248,7 +252,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getClientes, addCliente, deleteCliente, updateCliente, getClientePorDni } from '@/api/clientes.js'
 import { api } from '@/api/index.js'
 import bcrypt from "bcryptjs";
@@ -257,6 +261,8 @@ import { useProvincias } from '@/composables/useProvincias.js'
 import { useNotifications } from '@/composables/useNotifications.js'
 import { useValidaciones } from '@/composables/useValidaciones.js'
 import { usePaginacion } from '@/composables/usePaginacion.js'
+import jsPDF from 'jspdf';
+import autoTable from "jspdf-autotable";
 
 const { success, error, warning, confirmDelete, confirmSave, confirmActivate } = useNotifications();
 const { provincias, municipiosFiltrados, cargarProvincias, filtrarMunicipios: filtrarMunicipiosBase } = useProvincias();
@@ -592,6 +598,63 @@ function recargaForm() {
     editando.value = false;
     clienteEditandoId.value = null;
 }
+
+
+
+const clientesFiltrados = computed(() => {
+    return clientes.value.filter(cliente => {
+        return cliente.tipoCliente === nuevoCliente.value.tipoCliente
+    })
+})
+
+const imprimirPDF = () => {
+    const doc = new jsPDF();
+
+    console.log(nuevoCliente);
+
+
+    if (typeof autoTable === 'function') {
+        console.log('autoTable (función) está disponible');
+    } else {
+        console.error('autoTable no está disponible como función');
+    }
+
+    doc.setFontSize(18);
+    doc.text("Listado de Vehículos", 14, 20);
+
+    let y = 30;
+    doc.setFontSize(12);
+
+    // Definir los encabezados de la tabla
+    const headers = ["ID", "Apellidos", "Nombre", "Movil", "Municipio"];
+    // Añadir encabezados y en el body van los campos que hemos elegido no hace consultas sino que los obtiene del template
+    // el principio del componente.
+    // podríamos hacer consultas pero será algo que dejaremos para la factura aunque prefiero siempre tenerlos cargados desde
+    try {
+        autoTable(doc, {
+            starty: y,
+            head: [headers],
+            body: clientesFiltrados.value.map(cliente => [
+                cliente.id,
+                cliente.apellidos,
+                cliente.nombre,
+                cliente.movil,
+                cliente.municipio
+            ]),
+            theme: "striped", // Aplicar tema de rayas a la tabla
+            styles: { fontSize: 10, cellPadding: 3 }
+        });
+    } catch (err) {
+        console.error('Error generando autoTable:', err);
+        error('Error PDF', 'No se pudo generar la tabla en el PDF.');
+        return;
+    }
+
+    doc.save('listado_clientes.pdf');
+}
+
+
+
 </script>
 
 <style scoped>

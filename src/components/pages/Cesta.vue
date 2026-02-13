@@ -45,6 +45,7 @@
                 <div>
                     <div>Subtotal: {{ formato(precioBase) }} €</div>
                     <div v-if="descuento > 0">Descuento: -{{ formato(descuento) }} €</div>
+                    <div>IVA: {{ formato(iva) }} €</div>
                     <div v-if="gastosEnvio > 0">Gastos de envío: +{{ formato(gastosEnvio) }} €</div>
                 </div>
                 <div>
@@ -87,12 +88,23 @@ const descuento = computed(() => {
         ? Number((precioBase.value * 0.1).toFixed(2))
         : 0
 })
+const iva = computed(() => {
+    return esEmpresa()
+        ? Number((precioBase.value * 0.1).toFixed(2))
+        : Number((precioBase.value * 0.21).toFixed(2))
+})
+
+function esEmpresa(){
+    return sessionStorage.getItem("userType") === "company";
+}
+
 const gastosEnvio = computed(() => {
     const subtotal = precioBase.value - descuento.value
+    
     return subtotal > 0 && subtotal < 50 ? 5 : 0
 })
 const totalFinal = computed(() => {
-    return Number((precioBase.value - descuento.value + gastosEnvio.value).toFixed(2))
+    return Number((precioBase.value - descuento.value + gastosEnvio.value + iva.value).toFixed(2))
 })
 
 const formato = (n) => (typeof n === 'number' ? n.toFixed(2) : n)

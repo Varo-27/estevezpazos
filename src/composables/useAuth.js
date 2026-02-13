@@ -9,15 +9,27 @@ const user = ref(null);
 export function useAuth() {
     const isAdmin = computed(() => user.value?.tipo === "admin");
     const userName = computed(() => user.value?.nombre || "");
+    const userFullName = computed(() => {
+        if (!user.value?.nombre) return "";
+        return `${user.value.nombre}${user.value.apellidos ? ' ' + user.value.apellidos : ''}`;
+    });
+    const userDNI = computed(() => user.value?.dni || "");
 
     const initAuth = () => {
         const token = sessionStorage.getItem("token");
         const userName = sessionStorage.getItem("userName");
+        const userLastName = sessionStorage.getItem("userLastName");
+        const userDNI = sessionStorage.getItem("userDNI");
         const userType = sessionStorage.getItem("userType");
 
         if (token && userName) {
             isLogueado.value = true;
-            user.value = { nombre: userName, tipo: userType };
+            user.value = {
+                nombre: userName,
+                apellidos: userLastName,
+                dni: userDNI,
+                tipo: userType
+            };
         }
     };
 
@@ -27,11 +39,18 @@ export function useAuth() {
 
             // Actualizar estado
             isLogueado.value = true;
-            user.value = { nombre: data.nombre, tipo: data.tipo || "user" };
+            user.value = {
+                nombre: data.nombre,
+                apellidos: data.apellidos,
+                dni: data.dni,
+                tipo: data.tipo || "user"
+            };
 
             // Guardar en sessionStorage
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("userName", data.nombre);
+            sessionStorage.setItem("userLastName", data.apellidos || "");
+            sessionStorage.setItem("userDNI", data.dni || "");
             sessionStorage.setItem("userType", data.tipo || "user");
 
             Swal.fire({
@@ -70,6 +89,8 @@ export function useAuth() {
         isLogueado: computed(() => isLogueado.value),
         isAdmin,
         userName,
+        userFullName,
+        userDNI,
         initAuth,
         login,
         logout,

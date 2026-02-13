@@ -9,6 +9,7 @@ import Buscar from "@/components/pages/Buscar.vue";
 import Cesta from "@/components/pages/Cesta.vue";
 import CitasTaller from "@/components/pages/CitasTaller.vue";
 import ConTacto from "@/components/pages/ConTacto.vue";
+import Facturas from "@/components/pages/Facturas.vue";
 import GestionClientes from "@/components/pages/GestionClientes.vue";
 import ModeLos from "@/components/pages/ModeLos.vue";
 import NoTicias from "@/components/pages/NoTicias.vue";
@@ -45,6 +46,12 @@ const routes = [
         path: "/modelos",
         name: "ModeLos",
         component: ModeLos,
+        meta: { requiresAdmin: true },
+    },
+    {
+        path: "/facturas",
+        name: "Facturas",
+        component: Facturas,
         meta: { requiresAdmin: true },
     },
     {

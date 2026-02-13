@@ -1,0 +1,208 @@
+[{
+  "_id": {
+    "$oid": "698ae3ca73e3b42e2ef818de"
+  },
+  "numeroFactura": "F-2026-07381",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e757",
+      "nombre": "Volkswagen Golf",
+      "precio": 15800,
+      "cantidad": 2,
+      "total": 31600
+    },
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 41300,
+  "fecha": "2026-02-10T07:52:42.707Z"
+},
+{
+  "_id": {
+    "$oid": "698ae46d73e3b42e2ef818df"
+  },
+  "numeroFactura": "F-2026-09022",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e757",
+      "nombre": "Volkswagen Golf",
+      "precio": 15800,
+      "cantidad": 2,
+      "total": 31600
+    },
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 41300,
+  "fecha": "2026-02-10T07:55:25.561Z"
+},
+{
+  "_id": {
+    "$oid": "698ae57c73e3b42e2ef818e0"
+  },
+  "numeroFactura": "F-2026-05021",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e763",
+      "nombre": "Honda Civic",
+      "precio": 7400,
+      "cantidad": 1,
+      "total": 7400
+    },
+    {
+      "id": "6966161fd1517ee7bee3e762",
+      "nombre": "Audi A3",
+      "precio": 21900,
+      "cantidad": 1,
+      "total": 21900
+    }
+  ],
+  "total": 29300,
+  "fecha": "2026-02-10T07:59:56.208Z"
+},
+{
+  "_id": {
+    "$oid": "698c564aa86078ee6657e129"
+  },
+  "numeroFactura": "F-2026-09698",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e757",
+      "nombre": "Volkswagen Golf",
+      "precio": 15800,
+      "cantidad": 1,
+      "total": 15800
+    }
+  ],
+  "total": 15800,
+  "fecha": "2026-02-11T10:13:30.041Z"
+},
+{
+  "_id": {
+    "$oid": "698c5705a86078ee6657e12a"
+  },
+  "numeroFactura": "F-2026-08770",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 2,
+      "total": 19400
+    }
+  ],
+  "total": 19400,
+  "fecha": "2026-02-11T10:16:37.216Z"
+},
+{
+  "_id": {
+    "$oid": "698c5792a86078ee6657e12b"
+  },
+  "numeroFactura": "F-2026-09479",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e757",
+      "nombre": "Volkswagen Golf",
+      "precio": 15800,
+      "cantidad": 1,
+      "total": 15800
+    },
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 25500,
+  "fecha": "2026-02-11T10:18:58.403Z"
+},
+{
+  "_id": {
+    "$oid": "698c582fa86078ee6657e12c"
+  },
+  "numeroFactura": "F-2026-01300",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 9700,
+  "fecha": "2026-02-11T10:21:35.668Z"
+},
+{
+  "_id": {
+    "$oid": "698d82c6975247910000da8a"
+  },
+  "numeroFactura": "F-2026-01832",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 9700,
+  "fecha": "2026-02-12T07:35:34.465Z"
+},
+{
+  "_id": {
+    "$oid": "698d940e35fff756f19a6f74"
+  },
+  "numeroFactura": "F-2026-04269",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e758",
+      "nombre": "Peugeot 208",
+      "precio": 9700,
+      "cantidad": 1,
+      "total": 9700
+    }
+  ],
+  "total": 9700,
+  "fecha": "2026-02-12T08:49:18.390Z"
+},
+{
+  "_id": {
+    "$oid": "698d9a7c35fff756f19a6f75"
+  },
+  "numeroFactura": "F-2026-04076",
+  "nombreUsuario": "Laura",
+  "productos": [
+    {
+      "id": "6966161fd1517ee7bee3e757",
+      "nombre": "Volkswagen Golf",
+      "precio": 15800,
+      "cantidad": 2,
+      "total": 31600
+    }
+  ],
+  "total": 31600,
+  "fecha": "2026-02-12T09:16:44.336Z"
+}]

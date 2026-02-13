@@ -297,7 +297,7 @@
         </div>
       </div>
 
-      <table class="table table-striped table-hover table-bordered">
+      <table class="table table-hover table-bordered">
         <thead class="table-primary">
           <tr>
             <th>Tipo</th>
@@ -311,14 +311,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="coche in cochesFiltrados" :key="coche._id">
-            <td>{{ coche.tipo }}</td>
-            <td>{{ coche.marca }}</td>
-            <td>{{ coche.modelo }}</td>
-            <td>{{ coche.anio }}</td>
-            <td>{{ coche.kilometros?.toLocaleString() }}</td>
-            <td>{{ coche.precio?.toLocaleString() }} €</td>
-            <td>
+          <tr v-for="coche in cochesFiltrados" :key="coche._id" :class="{'aviso': coche.estado === 'reservado'}">
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.tipo }}</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.marca }}</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.modelo }}</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.anio }}</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.kilometros?.toLocaleString() }}</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">{{ coche.precio?.toLocaleString() }} €</td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">
               <span :class="{
                 'badge bg-success': coche.estado === 'disponible',
                 'badge bg-warning': coche.estado === 'reservado',
@@ -327,7 +327,7 @@
                 {{ coche.estado }}
               </span>
             </td>
-            <td>
+            <td :class="{'aviso': coche.estado === 'reservado'}">
               <button class="btn btn-sm btn-outline-primary me-1" @click="editarVehiculo(coche)" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
@@ -673,5 +673,9 @@ const imprimirPDF = () => {
   padding: 6px 12px;
   font-size: 0.9rem;
   cursor: pointer;
+}
+
+.aviso{
+  background-color: rgb(253, 234, 149) !important;
 }
 </style>

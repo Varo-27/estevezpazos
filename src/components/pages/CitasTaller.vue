@@ -86,10 +86,17 @@
             </div>
 
             <!-- Botón -->
-            <div class="col-12 text-center">
+            <div class="col-6 text-end">
                 <button type="submit" class="btn btn-primary">
                     {{ editando ? "Modificar Cita" : "Guardar Cita" }}
                 </button>
+            </div>
+            <div class="col-md-2">
+                <select v-model="filtroEstado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Finalizado">Finalizado</option>
+                </select>
             </div>
         </form>
 
@@ -148,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { getCitasTaller, deleteCitaTaller, addCitaTaller, updateCitaTaller } from "@/api/taller.js";
 import { useNotifications } from '@/composables/useNotifications.js';
 import { useValidaciones } from '@/composables/useValidaciones.js';
@@ -166,7 +173,18 @@ const editando = ref(false);
 const citaEditandoId = ref(null);
 const movilValido = ref(true);
 
-const citasPaginadas = crearItemsPaginados(citas);
+const filtroEstado = ref('')
+
+
+const citasFiltradas = computed(() => {
+    return citas.value.filter(citas => {
+        if (filtroEstado.value && citas.estadoCita !== filtroEstado.value) return false
+        return true
+    })
+})
+
+
+const citasPaginadas = crearItemsPaginados(citasFiltradas);
 const totalPages = crearTotalPages(citas);
 
 // ✅ Función auxiliar para crear cita vacía

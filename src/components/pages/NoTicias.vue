@@ -17,10 +17,15 @@
     <div class="mt-3">
         <div v-for="noticia in noticias" :key="noticia.id" class="noticia-card mb-3 rounded-3 overflow-hidden">
             <!-- Título y fecha -->
-            <div class="p-3 bg-info-subtle">
+            <div class="p-3 bg-info-subtle d-flex justify-content-between ">
                 <div class="d-flex justify-content-between align-items-center">
                     <strong class="text-primary">{{ noticia.titulo }}</strong>
-                    <small class="text-muted">{{ noticia.fecha }}</small>
+                </div>
+                <div class="align-items-center">
+                    <small class="text-muted me-4">{{ noticia.fecha }}</small>
+                    <button class="btn btn-warning" @click.prevent="actualizarNoticia(noticia.id)">
+                        <i class="bi bi-hand-thumbs-up"></i></button>
+                    <small class="btn bg-warning-subtle ms-2">{{ noticia.likes }}</small>
                 </div>
             </div>
 
@@ -34,7 +39,6 @@
                     <a href="#" @click.prevent="toggleExpand(noticia.id)" class="text-decoration-none">
                         {{ isExpanded[noticia.id] ? "Mostrar menos..." : "Seguir leyendo..." }}
                     </a>
-
                     <button v-if="isAdmin" class="btn btn-outline-secondary btn-sm"
                         @click.prevent="eliminarNoticia(noticia.id)">
                         <i class="bi bi-trash"></i>
@@ -47,7 +51,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import { getNoticias, addNoticia, deleteNoticia } from "@/api/noticias.js";
+import { getNoticias, addNoticia, updateNoticia, deleteNoticia } from "@/api/noticias.js";
 import { useAuth } from '@/composables/useAuth.js'
 
 const { isAdmin } = useAuth()
@@ -89,6 +93,7 @@ const agregarNoticia = async () => {
             .split("/")
             .reverse()
             .join("-"), // Formato YYYY-MM-DD
+        likes: 0
     };
 
     try {
@@ -118,6 +123,33 @@ const eliminarNoticia = async (id) => {
         alert("Error al eliminar la noticia");
     }
 }
+
+const actualizarNoticia = async (id) => {
+    try {
+        const noticiaEncontrada = noticias.value.find(noticia => noticia.id === id);
+
+        if (!noticiaEncontrada) {
+            console.error("Noticia no encontrada");
+            return;
+        }
+
+        await updateNoticia(id, {...noticiaEncontrada, likes: noticiaEncontrada.likes+1});
+        cargarNoticias()
+    } catch (error) {
+        console.error("Error al eliminar la noticia:", error);
+        alert("Error al eliminar la noticia");
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 const toggleExpand = (id) => {
     isExpanded[id] = !isExpanded[id];

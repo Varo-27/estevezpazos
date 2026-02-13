@@ -28,6 +28,11 @@
         </div>
       </form>
     </div>
+    <div>
+      <p>admin ->   55555555K  :  adbc123</p>
+      <p>company ->   00000000T  :  adbc123</p>
+      <p>user ->    12345678Z  :  adbc123</p>
+    </div>
   </div>
 </template>
 

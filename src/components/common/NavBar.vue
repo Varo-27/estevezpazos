@@ -39,6 +39,11 @@
             </router-link>
           </li>
           <li class="nav-item" v-if="isAdmin">
+            <router-link class="nav-link" to="/facturas" @click="cerrarMenu">
+              <span class="nav-underline">Facturas</span>
+            </router-link>
+          </li>
+          <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/taller" @click="cerrarMenu">
               <span class="nav-underline">Taller</span>
             </router-link>

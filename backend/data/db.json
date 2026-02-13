@@ -300,8 +300,8 @@
       "municipio": "Sumacàrcer",
       "historico": true,
       "lopd": true,
-      "password": "$2b$10$7PrEHgOsWsLMKW.ywTkmS.SnwP8gwjul6uIz1gz/1eskenLArEX7G",
-      "tipoCliente": "admin",
+      "password": "$2b$10$S2mlQg2SO16cgublIE3Oee6TlQIycwEj9joaOo.KoW59cUKJoh1HC",
+      "tipoCliente": "user",
       "id": "bacd"
     },
     {
@@ -339,8 +339,8 @@
     {
       "dni": "00000000T",
       "fecha_alta": "2025-11-15",
-      "nombre": "Sonic",
-      "apellidos": "Abalde Martínez",
+      "nombre": "Empresa",
+      "apellidos": "Empresa",
       "email": "sonia@tucorreo.com",
       "movil": "654789400",
       "direccion": "Avda. De Galicia, 101",
@@ -348,8 +348,8 @@
       "municipio": "Alconchel de la Estrella",
       "historico": true,
       "lopd": true,
-      "password": "$2b$10$ZhJX./lC4obbv8eNfNvnd.a.M176.SiPQ1wLum79RtmqAKTULHX12",
-      "tipoCliente": "user",
+      "password": "$2b$10$S2mlQg2SO16cgublIE3Oee6TlQIycwEj9joaOo.KoW59cUKJoh1HC",
+      "tipoCliente": "company",
       "id": "971c"
     },
     {
@@ -483,22 +483,25 @@
   ],
   "noticias": [
     {
-      "id": "8pur",
-      "titulo": "loco",
-      "contenido": "locoooooo",
-      "fecha": "2025-12-05"
+      "id": "izu9",
+      "titulo": "Muy bien",
+      "contenido": "Funciona",
+      "fecha": "2026-02-13",
+      "likes": 25
     },
     {
       "id": "4af8",
       "titulo": "Toyota presenta un nuevo motor",
       "contenido": "Toyota presenta su nuevo eléctrico bZ4X, un SUV compacto con autonomía de hasta 450 km y tecnología avanzada de asistencia al conductor. Este modelo marca el inicio de la nueva familia bZ (beyond Zero) de Toyota, enfocada en cero emisiones. El bZ4X cuenta con tracción total opcional, carga rápida y un diseño futurista que combina eficiencia y confort. Llegará a concesionarios en 2025, posicionándose como una opción competitiva en el mercado EV global.",
-      "fecha": "2025-10-23"
+      "fecha": "2025-10-23",
+      "likes": 13
     },
     {
       "id": "2f48",
       "titulo": "La UE dando palos de ciego en el mundo del motor",
       "contenido": "A pesar del firme respaldo de países como España y Francia a la meta de 2035 para prohibir la venta de coches nuevos con motores de combustión interna en la Unión Europea, Alemania ha impulsado una revisión de esta normativa ante la presión de los fabricantes de automóviles. Esta directiva forma parte del Pact Verde Europeo y pretende acelerar el fin de los combustibles fósiles en el transporte.",
-      "fecha": "2025-10-24"
+      "fecha": "2025-10-24",
+      "likes": 20
     }
   ],
   "taller": [
